@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>予約一覧ダッシュボード</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="./dashboard.css" />
+</head>
+<body>
+  <main class="wrap">
+    <h1>予約一覧ダッシュボード</h1>
+
+    <section class="filters">
+      <label>店舗
+        <select id="storeFilter">
+          <option value="">すべて</option>
+          <option value="ポケット店">ポケット店</option>
+          <option value="アップティ店">アップティ店</option>
+          <option value="キララ店">キララ店</option>
+        </select>
+      </label>
+
+      <label>受取日
+        <input type="date" id="dateFilter" />
+      </label>
+
+      <button id="reloadBtn">検索</button>
+    </section>
+
+    <section class="table-container">
+      <table id="reservationTable">
+        <thead>
+          <tr>
+            <th>予約番号</th>
+            <th>注文内容</th>
+            <th>合計金額</th>
+            <th>店舗</th>
+            <th>受取日</th>
+            <th>受取時間</th>
+            <th>氏名</th>
+            <th>電話</th>
+            <th>備考</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="./dashboard.js"></script>
+</body>
+</html>

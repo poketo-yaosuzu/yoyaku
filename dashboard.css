@@ -1,0 +1,17 @@
+.wrap { max-width: 1100px; margin: 16px auto; padding: 12px; font-family: system-ui, sans-serif; }
+h1 { font-size: 1.3rem; margin: 0 0 12px; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+.filters label { display: flex; align-items: center; gap: 6px; font-size: .95rem; }
+.filters select, .filters input[type="date"] { padding: 8px; border: 1px solid #ddd; border-radius: 8px; }
+.filters button { padding: 8px 12px; background: #2c7be5; color: #fff; border: 0; border-radius: 8px; }
+
+.table-container { overflow-x: auto; border: 1px solid #eee; border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; min-width: 900px; }
+th, td { border-bottom: 1px solid #eee; padding: 8px; text-align: left; vertical-align: top; }
+th { background: #fafafa; position: sticky; top: 0; z-index: 1; }
+tbody tr:hover { background: #fcfcff; }
+
+@media (max-width: 640px) {
+  .filters { gap: 10px; }
+}
