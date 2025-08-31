@@ -1,77 +1,56 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <title>ご予約フォーム</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="./app.css" />
-  <!-- ▼ 追加：LIFF SDK -->
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>予約フォーム</title>
+  <link rel="stylesheet" href="app.css">
 </head>
 <body>
-  <main class="container">
-    <h1>ご予約フォーム</h1>
-
+  <div class="container">
+    <h2>ご予約フォーム</h2>
     <form id="reservationForm">
-      <!-- ▼ 追加：LIFF情報（送信用、画面には出さない） -->
-      <input type="hidden" name="liffUserId" id="liffUserId" />
-      <input type="hidden" name="liffDisplayName" id="liffDisplayName" />
+      <label>お名前<span class="required">必須</span>
+        <input type="text" name="name" required>
+      </label>
 
-      <div class="field">
-        <label>氏名 <span class="req">必須</span></label>
-        <input type="text" name="name" required />
-      </div>
+      <label>電話番号<span class="required">必須</span>
+        <input type="tel" name="phone" required>
+      </label>
 
-      <div class="field">
-        <label>電話番号 <span class="req">必須</span></label>
-        <input type="tel" name="phone" required />
-      </div>
-
-      <div class="field">
-        <label>受取店舗 <span class="req">必須</span></label>
+      <label>受取店舗<span class="required"></span>
         <select name="store" required>
           <option value="">選択してください</option>
           <option value="ポケット店">ポケット店</option>
           <option value="アップティ店">アップティ店</option>
           <option value="キララ店">キララ店</option>
         </select>
-      </div>
+      </label>
 
-      <div class="field two">
-        <div>
-          <label>受取日 <span class="req">必須</span></label>
-          <input type="date" id="date" name="date" required />
-        </div>
-        <div>
-          <label>受取時間 <span class="req">必須</span></label>
-          <input type="time" id="time" name="time" required />
-        </div>
-      </div>
+      <label>受取日<span class="required">※本日より３日後から</span>
+        <input type="date" name="date" id="pickupDate" required>
+      </label>
 
-      <section class="products">
-        <div class="products-header">
-          <h2>商品を選択 <span class="req">必須</span></h2>
-          <button type="button" class="add" id="addProductBtn">＋ 商品を追加</button>
-        </div>
+      <label>受取時間<span class="required">11時から18時まで(30分刻み)</span>
+        <select name="time" id="pickupTime" required></select>
+      </label>
+            <a href="https://drive.google.com/file/d/1ozipMuv4eflwsTPUNdYStDJpJDweeLva/view?usp=drive_link">商品パンフレットはこちら</a>
+
+      <fieldset>
+        <legend>商品選択<span class="required"></span></legend>
         <div id="products"></div>
-      </section>
+      </fieldset>
 
-      <div class="total-line">
-        <div id="total">合計金額: 0円</div>
-        <input type="hidden" id="totalInput" name="total" value="0" />
+      <div class="total">
+        合計金額: <span id="totalPrice">0</span> 円
       </div>
 
-      <div class="field">
-        <label>備考</label>
-        <textarea name="remarks" rows="3" placeholder="連絡事項があればご記入ください"></textarea>
-      </div>
-
-      <div class="actions">
-        <button type="submit" class="submit">送信</button>
-      </div>
+      <label>備考
+        <textarea name="note"></textarea>
+      </label>
+      <button type="submit">送信</button>
     </form>
-  </main>
-
-  <script src="./app.js"></script>
+  </div>
+  <script src="app.js"></script>
 </body>
 </html>
