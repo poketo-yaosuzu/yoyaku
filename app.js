@@ -1,6 +1,4 @@
-function setEnv() {
-  PropertiesService.getScriptProperties().setProperty("LIFF_ID", "2007937055-Za6zOL4e");
-}
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzq6aJ2Vq6GAlzoLVJu5frjSKWFE72Ww84qs6WKDS1ulqTx0xlEdpyimCBT1d5L7tmxtw/exec";
 
 // 商品リスト
 const products = [
@@ -19,97 +17,88 @@ const products = [
   { name: "折箱入りおはぎ", price: 800 }
 ];
 
-// 商品リストを表示
-const productContainer = document.getElementById("products");
+// 商品リスト表示
+const productListDiv = document.getElementById("productList");
 products.forEach((p, i) => {
   const div = document.createElement("div");
-  div.classList.add("product-item");
   div.innerHTML = `
     <label>
-      ${p.name} (${p.price}円)
-      <input type="number" name="product_${i}" min="0" value="0">
+      <input type="number" min="0" value="0" data-index="${i}" class="productQty">
+      ${p.name}（${p.price}）
     </label>
   `;
-  productContainer.appendChild(div);
+  productListDiv.appendChild(div);
 });
 
-// 合計金額計算
-const totalPriceEl = document.getElementById("totalPrice");
-productContainer.addEventListener("input", updateTotal);
-
+// 合計計算
 function updateTotal() {
+  const qtys = document.querySelectorAll(".productQty");
   let total = 0;
-  document.querySelectorAll("#products input").forEach((input, i) => {
-    const qty = parseInt(input.value) || 0;
-    total += qty * products[i].price;
+  qtys.forEach(q => {
+    const i = q.dataset.index;
+    total += Number(q.value) * products[i].price;
   });
-  totalPriceEl.textContent = total;
+  document.getElementById("total").value = total;
 }
+document.querySelectorAll(".productQty").forEach(el => {
+  el.addEventListener("input", updateTotal);
+});
 
-// 受取日（3日後以降）
-const pickupDate = document.getElementById("pickupDate");
+// 受取日制限（3日後から）
+const pickupDateInput = document.getElementById("pickupDate");
 const today = new Date();
 today.setDate(today.getDate() + 3);
-pickupDate.min = today.toISOString().split("T")[0];
+pickupDateInput.min = today.toISOString().split("T")[0];
 
-// 受取時間（11:00〜18:00まで30分刻み）
-const pickupTime = document.getElementById("pickupTime");
+// 受取時間制限（11:00〜18:00、30分刻み）
+const pickupTimeSelect = document.getElementById("pickupTime");
 for (let h = 11; h <= 18; h++) {
   for (let m = 0; m < 60; m += 30) {
     if (h === 18 && m > 0) continue;
-    const timeStr = `${("0"+h).slice(-2)}:${("0"+m).slice(-2)}`;
+    const hh = String(h).padStart(2, "0");
+    const mm = String(m).padStart(2, "0");
     const opt = document.createElement("option");
-    opt.value = timeStr;
-    opt.textContent = timeStr;
-    pickupTime.appendChild(opt);
+    opt.value = `${hh}:${mm}`;
+    opt.textContent = `${hh}:${mm}`;
+    pickupTimeSelect.appendChild(opt);
   }
 }
 
 // フォーム送信
-document.getElementById("reservationForm").addEventListener("submit", async (e) => {
+document.getElementById("reservationForm").addEventListener("submit", e => {
   e.preventDefault();
 
   const formData = new FormData(e.target);
-  let items = [];
-  let total = 0;
+  const data = Object.fromEntries(formData.entries());
 
-  document.querySelectorAll("#products input").forEach((input, i) => {
-    const qty = parseInt(input.value) || 0;
-    if (qty > 0) {
-      items.push(`${products[i].name} × ${qty}`);
-      total += qty * products[i].price;
+  // 商品リスト
+  let productDetails = [];
+  let total = 0;
+  document.querySelectorAll(".productQty").forEach(q => {
+    const i = q.dataset.index;
+    if (Number(q.value) > 0) {
+      productDetails.push(`${products[i].name}×${q.value}`);
+      total += products[i].price * Number(q.value);
     }
   });
 
-  if (items.length === 0) {
-    alert("商品を1つ以上選択してください。");
+  if (productDetails.length === 0) {
+    alert("商品を1つ以上選択してください");
     return;
   }
 
-  const data = {
-    name: formData.get("name"),
-    phone: formData.get("phone"),
-    store: formData.get("store"),
-    date: formData.get("date"),
-    time: formData.get("time"),
-    items: items.join("\n"),
-    total: total,
-    note: formData.get("note")
-  };
+  data.products = productDetails.join("、");
+  data.total = total;
 
-  const scriptURL = "https://script.google.com/macros/s/AKfycbzsYvMDaXk_HxPu-2L_3NTEiVQYpQI2lD5I-Max8mJCxUbkARorfrD8Xhrsm4lV7gFmJQ/exec"; // 公開URLを設定
-  const res = await fetch(scriptURL, {
+  fetch(GAS_URL, {
     method: "POST",
     body: new URLSearchParams(data)
-  });
-
-  if (res.ok) {
-    alert("予約が送信されました。ありがとうございます！");
-    e.target.reset();
-    updateTotal();
-  } else {
-    alert("送信エラーが発生しました。");
-  }
+  })
+    .then(res => res.text())
+    .then(txt => {
+      alert("予約を送信しました: " + txt);
+      e.target.reset();
+      document.getElementById("total").value = "";
+    })
+    .catch(err => alert("エラー: " + err));
 });
-
-
