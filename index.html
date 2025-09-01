@@ -2,58 +2,46 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>予約フォーム</title>
   <link rel="stylesheet" href="app.css">
 </head>
 <body>
-  <div class="container">
-    <h2>ご予約フォーム</h2>
-    <form id="reservationForm">
-      <label>お名前<span class="required">必須</span>
-        <input type="text" name="name" required>
-      </label>
+  <h2>ご予約フォーム</h2>
+  <form id="reservationForm">
+    <label>名前(必須)<input type="text" name="name" required></label><br>
+    <label>電話番号（必須）<input type="tel" name="phone" required></label><br>
+    <label>受取店舗
+      <select name="store" required>
+        <option value="">選択してください</option>
+        <option value="ポケット店">ポケット店</option>
+        <option value="アップティ店">アップティ店</option>
+        <option value="キララ店">キララ店</option>
+      </select>
+    </label><br>
+    <label>受取日※本日より3日後から
+      <input type="date" name="pickupDate" id="pickupDate" required>
+    </label><br>
+    <label>受取時間※11時から18時まで(30分刻み)
+      <select name="pickupTime" id="pickupTime" required></select>
+    </label><br>
+    <a href= "https://drive.google.com/file/d/1ozipMuv4eflwsTPUNdYStDJpJDweeLva/view?usp=drive_link" target="_blank" >パンフレットはこちらから</a>
 
-      <label>電話番号<span class="required">必須</span>
-        <input type="tel" name="phone" required>
-      </label>
+    <fieldset>
+      <legend>商品選択（複数可）</legend>
+      <div id="productList"></div>
+    </fieldset>
 
-      <label>受取店舗<span class="required"></span>
-        <select name="store" required>
-          <option value="">選択してください</option>
-          <option value="ポケット店">ポケット店</option>
-          <option value="アップティ店">アップティ店</option>
-          <option value="キララ店">キララ店</option>
-        </select>
-      </label>
+    <label>合計金額
+      <br>お支払いは、受取店舗のレジで
+      <br>現金・クレジット決済です。
+      <input type="text" name="total" id="total" readonly>
+    </label><br>
 
-      <label>受取日<span class="required">※本日より３日後から</span>
-        <input type="date" name="date" id="pickupDate" required>
-      </label>
+    <label>備考<textarea name="memo"></textarea></label><br>
 
-      <label>受取時間<span class="required">11時から18時まで(30分刻み)</span>
-        <select name="time" id="pickupTime" required></select>
-      </label>
-            <a href="https://drive.google.com/file/d/1ozipMuv4eflwsTPUNdYStDJpJDweeLva/view?usp=drive_link">商品パンフレットはこちら</a>
+    <button type="submit">送信</button>
+  </form>
 
-      <fieldset>
-        <legend>商品選択<span class="required"></span></legend>
-        <div id="products"></div>
-      </fieldset>
-
-      <div class="total">
-        合計金額: <span id="totalPrice">0</span> 円
-        <br>お支払いは、受取店舗のレジで
-        <br>現金・クレジット決済です。
-      </div>
-
-      <label>備考
-        <textarea name="note"></textarea>
-      </label>
-      <button type="submit">送信</button>
-    </form>
-  </div>
   <script src="app.js"></script>
 </body>
 </html>
-
