@@ -1,52 +1,103 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <title>予約一覧ダッシュボード</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="./dashboard.css" />
+  <meta charset="UTF-8">
+  <title>予約ダッシュボード</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    .controls { margin-bottom: 15px; }
+    select { margin-right: 10px; padding: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #f2f2f2; }
+    tr:nth-child(even) { background-color: #fafafa; }
+    .summary { margin-top: 15px; font-weight: bold; }
+  </style>
 </head>
 <body>
-  <main class="wrap">
-    <h1>予約一覧ダッシュボード</h1>
+  <h2>予約ダッシュボード</h2>
 
-    <section class="filters">
-      <label>店舗
-        <select id="storeFilter">
-          <option value="">すべて</option>
-          <option value="ポケット店">ポケット店</option>
-          <option value="アップティ店">アップティ店</option>
-          <option value="キララ店">キララ店</option>
-        </select>
-      </label>
+  <div class="controls">
+    <label>店舗フィルタ:
+      <select id="storeFilter">
+        <option value="">全店舗</option>
+        <option value="ポケット店">ポケット店</option>
+        <option value="アップティ店">アップティ店</option>
+        <option value="キララ店">キララ店</option>
+      </select>
+    </label>
+  </div>
 
-      <label>受取日
-        <input type="date" id="dateFilter" />
-      </label>
+  <table>
+    <thead>
+      <tr>
+        <th>予約番号</th>
+        <th>名前</th>
+        <th>電話番号</th>
+        <th>受取店舗</th>
+        <th>受取日</th>
+        <th>受取時間</th>
+        <th>商品</th>
+        <th>合計金額</th>
+        <th>備考</th>
+      </tr>
+    </thead>
+    <tbody id="reservation-list">
+      <tr><td colspan="9">読み込み中...</td></tr>
+    </tbody>
+  </table>
 
-      <button id="reloadBtn">検索</button>
-    </section>
+  <div class="summary" id="summary">売上合計: 0</div>
 
-    <section class="table-container">
-      <table id="reservationTable">
-        <thead>
-          <tr>
-            <th>予約番号</th>
-            <th>注文内容</th>
-            <th>合計金額</th>
-            <th>店舗</th>
-            <th>受取日</th>
-            <th>受取時間</th>
-            <th>氏名</th>
-            <th>電話</th>
-            <th>備考</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
-  </main>
+  <script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzq6aJ2Vq6GAlzoLVJu5frjSKWFE72Ww84qs6WKDS1ulqTx0xlEdpyimCBT1d5L7tmxtw/exec";
+    let reservations = [];
 
-  <script src="./dashboard.js"></script>
+    // データ取得
+    fetch(GAS_URL + "?action=getReservations")
+      .then(res => res.json())
+      .then(data => {
+        // 受取日+時間で並び替え（最新が下）
+        reservations = data.sort((a, b) => {
+          return new Date(a.pickupDate + " " + a.pickupTime) - new Date(b.pickupDate + " " + b.pickupTime);
+        });
+        renderTable();
+      });
+
+    function renderTable() {
+      const list = document.getElementById("reservation-list");
+      list.innerHTML = "";
+      const filterStore = document.getElementById("storeFilter").value;
+      let filtered = filterStore ? reservations.filter(r => r.store === filterStore) : reservations;
+
+      if (filtered.length === 0) {
+        list.innerHTML = "<tr><td colspan='9'>予約なし</td></tr>";
+        document.getElementById("summary").textContent = "売上合計: 0";
+        return;
+      }
+
+      let total = 0;
+      filtered.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${r.id}</td>
+          <td>${r.name}</td>
+          <td>${r.phone}</td>
+          <td>${r.store}</td>
+          <td>${r.pickupDate}</td>
+          <td>${r.pickupTime}</td>
+          <td>${r.products}</td>
+          <td>${r.total}</td>
+          <td>${r.memo || ""}</td>
+        `;
+        list.appendChild(tr);
+        total += Number(r.total || 0);
+      });
+
+      document.getElementById("summary").textContent = "売上合計: " + total;
+    }
+
+    document.getElementById("storeFilter").addEventListener("change", renderTable);
+  </script>
 </body>
 </html>
