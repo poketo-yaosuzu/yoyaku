@@ -1,4 +1,4 @@
-const GAS_URL_READ = "https://script.google.com/macros/s/AKfycbzsYvMDaXk_HxPu-2L_3NTEiVQYpQI2lD5I-Max8mJCxUbkARorfrD8Xhrsm4lV7gFmJQ/exec"; // doGetでJSONを返す
+const GAS_URL_READ = "https://script.google.com/macros/s/AKfycbytt5oXfScFPHO3_4H3HQVdkfdphA_ZRx2_b20bh-5cz4u2w0FGfBUc1ISQyFFmdfrK7g/exec"; // doGetでJSONを返す
 
 const storeFilter = document.getElementById("storeFilter");
 const dateFilter = document.getElementById("dateFilter");
@@ -56,9 +56,3 @@ function safe(v) {
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
   }[s]));
 }
-
-
-
-
-
-
