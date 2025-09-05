@@ -1,4 +1,4 @@
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzq6aJ2Vq6GAlzoLVJu5frjSKWFE72Ww84qs6WKDS1ulqTx0xlEdpyimCBT1d5L7tmxtw/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzsYvMDaXk_HxPu-2L_3NTEiVQYpQI2lD5I-Max8mJCxUbkARorfrD8Xhrsm4lV7gFmJQ/exec";
 
 function setEnv() {
   PropertiesService.getScriptProperties().setProperty("LIFF_ID", "2007937055-Za6zOL4e");
@@ -106,6 +106,7 @@ document.getElementById("reservationForm").addEventListener("submit", e => {
     })
     .catch(err => alert("エラー: " + err));
 });
+
 
 
 
