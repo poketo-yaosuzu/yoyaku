@@ -97,7 +97,7 @@ document.getElementById("reservationForm").addEventListener("submit", async (e) 
     note: formData.get("note")
   };
 
-  const scriptURL = "https://script.google.com/macros/s/AKfycbytt5oXfScFPHO3_4H3HQVdkfdphA_ZRx2_b20bh-5cz4u2w0FGfBUc1ISQyFFmdfrK7g/exec"; // 公開URLを設定
+  const scriptURL = "https://script.google.com/macros/s/AKfycbx4iqTAwOdr99pKHuAgRzH6G0-1gsPNlffFQQtUIGYFBWvlILlzJGnE6yIlnKua5nBhzQ/exec"; // 公開URLを設定
   const res = await fetch(scriptURL, {
     method: "POST",
     body: new URLSearchParams(data)
@@ -111,3 +111,4 @@ document.getElementById("reservationForm").addEventListener("submit", async (e) 
     alert("送信エラーが発生しました。");
   }
 });
+
