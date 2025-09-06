@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>予約完了</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>予約が完了しました</h2>
+  <p>以下の内容で受付しました。</p>
+
+  <table>
+    <tbody>
+      <tr><th>予約番号</th><td id="id"></td></tr>
+      <tr><th>名前</th><td id="name"></td></tr>
+      <tr><th>電話番号</th><td id="phone"></td></tr>
+      <tr><th>受取店舗</th><td id="store"></td></tr>
+      <tr><th>受取日</th><td id="pickupDate"></td></tr>
+      <tr><th>受取時間</th><td id="pickupTime"></td></tr>
+      <tr><th>商品</th><td id="products"></td></tr>
+      <tr><th>合計金額</th><td id="total"></td></tr>
+      <tr><th>備考</th><td id="memo"></td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    document.getElementById("id").textContent = params.get("id");
+    document.getElementById("name").textContent = params.get("name");
+    document.getElementById("phone").textContent = params.get("phone");
+    document.getElementById("store").textContent = params.get("store");
+    document.getElementById("pickupDate").textContent = params.get("pickupDate");
+    document.getElementById("pickupTime").textContent = params.get("pickupTime");
+    document.getElementById("products").innerHTML = (params.get("products") || "").replace(/\n/g, "<br>");
+    document.getElementById("total").textContent = params.get("total");
+    document.getElementById("memo").textContent = params.get("memo");
+  </script>
+    <h>ご利用ありがとうございました。</h>
+</body>
+</html>

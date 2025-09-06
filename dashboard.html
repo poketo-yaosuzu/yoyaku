@@ -1,52 +1,98 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <title>予約一覧ダッシュボード</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="./dashboard.css" />
+  <meta charset="UTF-8">
+  <title>予約ダッシュボード</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="wrap">
-    <h1>予約一覧ダッシュボード</h1>
+  <h2>予約ダッシュボード</h2>
 
-    <section class="filters">
-      <label>店舗
-        <select id="storeFilter">
-          <option value="">すべて</option>
-          <option value="ポケット店">ポケット店</option>
-          <option value="アップティ店">アップティ店</option>
-          <option value="キララ店">キララ店</option>
-        </select>
-      </label>
+  <label>店舗で絞り込み:
+    <select id="storeFilter">
+      <option value="">全店舗</option>
+      <option value="ポケット店">ポケット店</option>
+      <option value="アップティ店">アップティ店</option>
+      <option value="キララ店">キララ店</option>
+    </select>
+  </label>
 
-      <label>受取日
-        <input type="date" id="dateFilter" />
-      </label>
+  <div id="salesSummary" class="summary">売上合計: 0</div>
 
-      <button id="reloadBtn">検索</button>
-    </section>
+  <table>
+    <thead>
+      <tr>
+        <th>予約番号</th>
+        <th>名前</th>
+        <th>電話番号</th>
+        <th>受取店舗</th>
+        <th>受取日</th>
+        <th>受取時間</th>
+        <th>商品</th>
+        <th>合計金額</th>
+        <th>備考</th>
+      </tr>
+    </thead>
+    <tbody id="reservation-list">
+      <tr><td colspan="9">読み込み中...</td></tr>
+    </tbody>
+  </table>
 
-    <section class="table-container">
-      <table id="reservationTable">
-        <thead>
-          <tr>
-            <th>予約番号</th>
-            <th>注文内容</th>
-            <th>合計金額</th>
-            <th>店舗</th>
-            <th>受取日</th>
-            <th>受取時間</th>
-            <th>氏名</th>
-            <th>電話</th>
-            <th>備考</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
-  </main>
+  <script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzPbS23lntPHdU7SLNCP5GhXCwlCSntiv5mOsJHSJz5cnRafMTUQ1jABE_HCjZC6cgLJw/exec";
 
-  <script src="./dashboard.js"></script>
+    function loadReservations() {
+      fetch(GAS_URL + "?action=getReservations")
+        .then(res => res.json())
+        .then(data => {
+          renderTable(data);
+        })
+        .catch(err => {
+          document.getElementById("reservation-list").innerHTML =
+            "<tr><td colspan='9'>エラー: " + err + "</td></tr>";
+        });
+    }
+
+    function renderTable(data) {
+      const filter = document.getElementById("storeFilter").value;
+      const list = document.getElementById("reservation-list");
+      list.innerHTML = "";
+
+      // 店舗フィルタ & 日付順ソート
+      let filtered = data.filter(r => !filter || r.store === filter);
+      filtered.sort((a, b) => (a.pickupDate + a.pickupTime) > (b.pickupDate + b.pickupTime) ? 1 : -1);
+
+      if (filtered.length === 0) {
+        list.innerHTML = "<tr><td colspan='9'>該当する予約はありません</td></tr>";
+        document.getElementById("salesSummary").textContent = "売上合計: 0";
+        return;
+      }
+
+      let totalSales = 0;
+      filtered.forEach(r => {
+        totalSales += Number(r.total);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${r.id}</td>
+          <td>${r.name}</td>
+          <td>${r.phone}</td>
+          <td>${r.store}</td>
+          <td>${r.pickupDate}</td>
+          <td>${r.pickupTime}</td>
+          <td>${(r.products || "").replace(/\n/g, "<br>")}</td>
+          <td>${r.total}</td>
+          <td>${r.memo || ""}</td>
+        `;
+        list.appendChild(tr);
+      });
+
+      document.getElementById("salesSummary").textContent =
+        "売上合計: " + totalSales;
+    }
+
+    document.getElementById("storeFilter").addEventListener("change", loadReservations);
+
+    loadReservations();
+  </script>
 </body>
 </html>
