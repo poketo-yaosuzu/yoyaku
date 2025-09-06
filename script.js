@@ -106,15 +106,44 @@ for (let h = 11; h <= 18; h++) {
 // フォーム送信
 document.getElementById("reservationForm").addEventListener("submit", e => {
   e.preventDefault();
-  const form = e.target;
+  const { productDetails, total } = updateTotal();
+
+  // ★ 商品が未選択ならエラー
+  if (productDetails.length === 0) {
+    alert("商品を1つ以上選んでください");
+    return;
+  }
+
   const data = {
-    name: form.name.value,
-    phone: form.phone.value,
-    store: form.store.value,
-    pickupDate: form.pickupDate.value,
-    pickupTime: form.pickupTime.value,
-    memo: form.memo.value
+    name: document.getElementById("name").value,
+    phone: document.getElementById("phone").value,
+    store: document.getElementById("store").value,
+    pickupDate: document.getElementById("pickupDate").value,
+    pickupTime: document.getElementById("pickupTime").value,
+    products: productDetails.join("\n"),
+    total: total,
+    memo: document.getElementById("memo").value
   };
+
+  fetch(GAS_URL, {
+    method: "POST",
+    body: new URLSearchParams(data)
+  })
+  .then(res => res.json())
+  .then(res => {
+    if (res.result === "success") {
+      // 完了ページへ遷移
+      const query = new URLSearchParams({
+        id: res.id,
+        ...data
+      }).toString();
+      window.location.href = "confirm.html?" + query;
+    } else {
+      alert("エラー: " + res.message);
+    }
+  })
+  .catch(err => alert("通信エラー: " + err));
+});
 
   // 商品まとめ
   let productDetails = [];
