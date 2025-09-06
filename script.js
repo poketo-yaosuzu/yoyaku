@@ -4,15 +4,14 @@ function setEnv() {
   PropertiesService.getScriptProperties().setProperty("LIFF_ID", "2007937055-Za6zOL4e");
 }
 
-// 商品リスト
-const products = [
-  { name: "【葵】５人前", price: 7800 },
-  { name: "【葵】４人前", price: 6240 },
-  { name: "【宴】５人前", price: 6800 },
-  { name: "【宴】４人前", price: 5400 },
-  { name: "【渚】５人前", price: 5000 },
-  { name: "【渚】４人前", price: 4000 },
-  { name: "【雅】１人前", price: 1580 },
+const productList = [
+  { name: "【葵】5人前", price: 7800 },
+  { name: "【葵】4人前", price: 6240 },
+  { name: "【宴】5人前", price: 6800 },
+  { name: "【宴】4人前", price: 5400 },
+  { name: "【渚】5人前", price: 5000 },
+  { name: "【渚】4人前", price: 4000 },
+  { name: "【雅】1人前", price: 1580 },
   { name: "助六盛合わせ", price: 3000 },
   { name: "てまり", price: 3800 },
   { name: "オードブル【大】", price: 5000 },
@@ -21,27 +20,69 @@ const products = [
   { name: "折箱入りおはぎ", price: 800 }
 ];
 
-// 商品リストを表示
-const productList = document.getElementById("productList");
-products.forEach((p, i) => {
-  const div = document.createElement("div");
-  div.innerHTML = `
-    ${p.name} (${p.price}円)
-    <input type="number" class="productQty" data-index="${i}" value="0" min="0">
-  `;
-  productList.appendChild(div);
-});
+const productsDiv = document.getElementById("products");
+const addProductBtn = document.getElementById("addProductBtn");
 
-// 合計金額の更新
+// 商品選択行を作成
+function createProductRow() {
+  const row = document.createElement("div");
+  row.className = "product-row";
+
+  const select = document.createElement("select");
+  select.innerHTML = `<option value="">商品を選択</option>` +
+    productList.map(p => `<option value="${p.name}" data-price="${p.price}">${p.name} (${p.price}円)</option>`).join("");
+
+  const qty = document.createElement("input");
+  qty.type = "number";
+  qty.min = "1";
+  qty.value = "1";
+  qty.style.width = "60px";
+
+  // 削除ボタン
+  const removeBtn = document.createElement("button");
+  removeBtn.type = "button";
+  removeBtn.textContent = "削除";
+  removeBtn.addEventListener("click", () => {
+    row.remove();
+    updateTotal();
+  });
+
+  row.appendChild(select);
+  row.appendChild(document.createTextNode(" 数量: "));
+  row.appendChild(qty);
+  row.appendChild(removeBtn);
+
+  productsDiv.appendChild(row);
+
+  select.addEventListener("change", updateTotal);
+  qty.addEventListener("input", updateTotal);
+}
+
+// 合計金額を更新
 function updateTotal() {
   let total = 0;
-  document.querySelectorAll(".productQty").forEach(q => {
-    const i = q.dataset.index;
-    total += products[i].price * Number(q.value);
+  const productDetails = [];
+  const rows = productsDiv.querySelectorAll(".product-row");
+
+  rows.forEach(row => {
+    const select = row.querySelector("select");
+    const qty = row.querySelector("input[type=number]");
+    const selectedOption = select.options[select.selectedIndex];
+    if (select.value && qty.value > 0) {
+      const price = parseInt(selectedOption.dataset.price, 10);
+      const subtotal = price * parseInt(qty.value, 10);
+      total += subtotal;
+      productDetails.push(`${select.value} ×${qty.value}`);
+    }
   });
-  document.getElementById("totalPrice").textContent = total;
+
+  document.getElementById("total").textContent = total;
+  return { productDetails, total };
 }
-document.querySelectorAll(".productQty").forEach(q => q.addEventListener("input", updateTotal));
+
+// 初期状態で1行表示
+createProductRow();
+addProductBtn.addEventListener("click", createProductRow);
 
 // 受取日を3日後からに制限
 const pickupDateInput = document.getElementById("pickupDate");

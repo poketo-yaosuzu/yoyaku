@@ -5,7 +5,7 @@ body {
   padding: 0;
 }
 .container {
-  max-width: 400px;
+  max-width: 300px;
   margin: 20px auto;
   padding: 20px;
   background: #fff;
@@ -22,12 +22,12 @@ label, fieldset {
 }
 input, select, textarea {
   width: 30%;
-  padding: 8px;
-  margin-top: 5px;
+  padding: 5px;
+  margin-top: 3px;
   box-sizing: border-box;
 }
 button {
-  width: 50%;
+  width: 40%;
   padding: 12px;
   background: #4CAF50;
   color: white;
@@ -66,7 +66,7 @@ form textarea {
   max-width: 90%; /* ← スマホで収まるように */
   padding: 6px;
   font-size: 14px;
-  border: 1px solid #ccc;
+  border: 5px solid #ccc;
   border-radius: 6px;
   box-sizing: border-box;
 }
@@ -76,5 +76,73 @@ form textarea {
   width: 300px;
   height: 80px;
 }
+/* フォーム2列レイアウト */
+form {
+  max-width: 600px;
+  margin: auto;
+}
 
+.form-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
 
+.form-row label {
+  flex: 0 0 120px;   /* ラベルの幅固定 */
+  font-weight: bold;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+  flex: 1;           /* 入力欄は残り幅いっぱい */
+  max-width: 350px;
+}
+
+textarea {
+  height: 80px;
+}
+/* 商品選択欄 */
+#products {
+  display: flex;
+  flex-direction: column; /* 縦に並べる */
+  gap: 8px; /* 商品間の余白 */
+  max-width: 350px; /* 他の入力欄と揃える */
+}
+
+#products .product-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#products select,
+#products input[type="number"] {
+  width: 160px;
+}
+#products {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 350px;
+}
+
+.product-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 追加ボタンを整える */
+#addProductBtn {
+  padding: 6px 12px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+#addProductBtn:hover {
+  background-color: #45a049;
+}
