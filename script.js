@@ -20,6 +20,45 @@ const productList = [
   { name: "折箱入りおはぎ", price: 800 }
 ];
 
+function addProductRow() {
+  const row = document.createElement("div");
+  row.classList.add("product-row");
+
+  const select = document.createElement("select");
+  select.innerHTML = `
+    <option value="">商品を選択</option>
+    <option value="【葵】５人前" data-price="7800">【葵】５人前 7,800</option>
+    <option value="【葵】４人前" data-price="6240">【葵】４人前 6,240</option>
+    <option value="【宴】５人前" data-price="6800">【宴】５人前 6,800</option>
+    <option value="【宴】４人前" data-price="5400">【宴】４人前 5,400</option>
+    <option value="【渚】５人前" data-price="5000">【渚】５人前 5,000</option>
+    <option value="【渚】４人前" data-price="4000">【渚】４人前 4,000</option>
+    <option value="【雅】１人前" data-price="1580">【雅】１人前 1,580</option>
+    <option value="助六盛合わせ" data-price="3000">助六盛合わせ 3,000</option>
+    <option value="てまり" data-price="3800">てまり 3,800</option>
+    <option value="オードブル【大】" data-price="5000">オードブル【大】 5,000</option>
+    <option value="オードブル【中】" data-price="3000">オードブル【中】 3,000</option>
+    <option value="サンドイッチ" data-price="2800">サンドイッチ 2,800</option>
+    <option value="折箱入りおはぎ" data-price="800">折箱入りおはぎ 800</option>
+  `;
+
+  const qty = document.createElement("input");
+  qty.type = "number";
+  qty.min = "1";       // ★ 最低 1
+  qty.value = "1";     // ★ 初期値 1
+
+  const removeBtn = document.createElement("button");
+  removeBtn.type = "button";
+  removeBtn.textContent = "削除";
+  removeBtn.addEventListener("click", () => row.remove());
+
+  row.appendChild(select);
+  row.appendChild(qty);
+  row.appendChild(removeBtn);
+
+  document.getElementById("products").appendChild(row);
+}
+
 const productsDiv = document.getElementById("products");
 const addProductBtn = document.getElementById("addProductBtn");
 
@@ -67,16 +106,23 @@ function updateTotal() {
   rows.forEach(row => {
     const select = row.querySelector("select");
     const qty = row.querySelector("input[type=number]");
-    const selectedOption = select.options[select.selectedIndex];
-    if (select.value && qty.value > 0) {
-      const price = parseInt(selectedOption.dataset.price, 10);
-      const subtotal = price * parseInt(qty.value, 10);
-      total += subtotal;
-      productDetails.push(`${select.value} ×${qty.value}`);
-    }
+    
+    // 商品が未選択ならスキップ
+    if (!select.value || select.value === "") return;
+
+    const price = parseInt(select.options[select.selectedIndex].dataset.price, 10) || 0;
+    const quantity = parseInt(qty.value, 10) || 0;
+
+    if (quantity >= 1) {
+  const subtotal = price * quantity;
+  total += subtotal;
+  productDetails.push(`${select.value} ×${quantity}`);
+}
   });
 
+  // 合計表示を更新
   document.getElementById("total").textContent = total;
+
   return { productDetails, total };
 }
 
@@ -104,12 +150,13 @@ for (let h = 11; h <= 18; h++) {
 }
 
 // フォーム送信
-document.getElementById("reservationForm").addEventListener("submit", e => {
+document.getElementById("reservationForm").addEventListener("submit", function(e) {
   e.preventDefault();
+
   const { productDetails, total } = updateTotal();
 
-  // ★ 商品が未選択ならエラー
-  if (productDetails.length === 0) {
+  // ★ 商品未選択チェック
+  if (!productDetails || productDetails.length === 0) {
     alert("商品を1つ以上選んでください");
     return;
   }

@@ -146,3 +146,24 @@ textarea {
 #addProductBtn:hover {
   background-color: #45a049;
 }
+/* 送信ボタン（中央・コンパクトサイズ） */
+.form-submit {
+  display: flex;
+  justify-content: center; /* 横方向の中央寄せ */
+  margin-top: 20px;
+}
+
+.form-submit button {
+  padding: 8px 20px;
+  font-size: 15px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.form-submit button:hover {
+  background-color: #45a049;
+}
