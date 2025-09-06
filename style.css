@@ -21,13 +21,13 @@ label, fieldset {
   margin-bottom: 15px;
 }
 input, select, textarea {
-  width: 100%;
+  width: 30%;
   padding: 8px;
   margin-top: 5px;
   box-sizing: border-box;
 }
 button {
-  width: 100%;
+  width: 50%;
   padding: 12px;
   background: #4CAF50;
   color: white;
@@ -57,3 +57,23 @@ button:hover {
 .product-item input {
   width: 60px;
 }
+/* 入力欄の共通スタイル */
+form input[type="text"],
+form input[type="tel"],
+form select,
+form textarea {
+  width: 250px;   /* ← 横幅を適度に制限 */
+  max-width: 90%; /* ← スマホで収まるように */
+  padding: 6px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+/* 備考欄（テキストエリア）は少し広め */
+form textarea {
+  width: 300px;
+  height: 80px;
+}
+
