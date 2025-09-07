@@ -83,6 +83,26 @@ textarea {
   background-color: #45a049;
 }
 
+/* 入力欄の共通スタイル */
+input[type="text"],
+input[type="tel"],
+input[type="date"],
+select,
+textarea {
+  flex: none;              /* 伸びすぎ防止 */
+  width: 250px;            /* 適切な幅 */
+  max-width: 100%;         /* スマホで崩れないように */
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* 備考欄（textarea）は少し広めに */
+textarea {
+  width: 300px;
+  height: 80px;
+}
+
 /* 商品行を横並びにする */
 .product-row {
   display: flex;
@@ -93,11 +113,11 @@ textarea {
 
 .product-row select {
   flex: 1;               /* プルダウンを横幅広めに */
-  min-width: 180px;
+  min-width: 230px;
 }
 
 .product-row input[type="number"] {
-  width: 60px;           /* 数量欄は小さめに */
+  width: 10px;           /* 数量欄は小さめに */
 }
 
 .product-row button {
