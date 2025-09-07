@@ -1,155 +1,70 @@
 body {
-  font-family: sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  margin: 20px;
   background: #f9f9f9;
-  margin: 0;
-  padding: 0;
 }
-.container {
-  max-width: 300px;
-  margin: 20px auto;
-  padding: 20px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
+
 h2 {
   text-align: center;
   margin-bottom: 20px;
 }
-label, fieldset {
-  display: block;
-  margin-bottom: 15px;
-}
-input, select, textarea {
-  width: 30%;
-  padding: 5px;
-  margin-top: 3px;
-  box-sizing: border-box;
-}
-button {
-  width: 40%;
-  padding: 12px;
-  background: #4CAF50;
-  color: white;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-button:hover {
-  background: #45a049;
-}
-.required {
-  color: red;
-  font-size: 0.9em;
-  margin-left: 5px;
-}
-.total {
-  font-weight: bold;
-  margin: 10px 0;
-  font-size: 1.2em;
-}
-.product-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-.product-item input {
-  width: 60px;
-}
-/* 入力欄の共通スタイル */
-form input[type="text"],
-form input[type="tel"],
-form select,
-form textarea {
-  width: 250px;   /* ← 横幅を適度に制限 */
-  max-width: 90%; /* ← スマホで収まるように */
-  padding: 6px;
-  font-size: 14px;
-  border: 5px solid #ccc;
-  border-radius: 6px;
-  box-sizing: border-box;
-}
-
-/* 備考欄（テキストエリア）は少し広め */
-form textarea {
-  width: 300px;
-  height: 80px;
-}
-/* フォーム2列レイアウト */
-form {
-  max-width: 600px;
-  margin: auto;
-}
 
 .form-row {
+  margin-bottom: 15px;
   display: flex;
   align-items: center;
-  margin-bottom: 12px;
 }
 
-.form-row label {
-  flex: 0 0 120px;   /* ラベルの幅固定 */
+label {
+  width: 120px;
   font-weight: bold;
 }
 
-.form-row input,
-.form-row select,
-.form-row textarea {
-  flex: 1;           /* 入力欄は残り幅いっぱい */
-  max-width: 350px;
+input, select, textarea {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 textarea {
-  height: 80px;
-}
-/* 商品選択欄 */
-#products {
-  display: flex;
-  flex-direction: column; /* 縦に並べる */
-  gap: 8px; /* 商品間の余白 */
-  max-width: 350px; /* 他の入力欄と揃える */
+  height: 60px;
 }
 
-#products .product-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.required {
+  color: red;
+  margin-left: 4px;
 }
 
-#products select,
-#products input[type="number"] {
-  width: 160px;
-}
-#products {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-width: 350px;
-}
-
-.product-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* 追加ボタンを整える */
+/* 商品追加ボタン */
 #addProductBtn {
-  padding: 6px 12px;
-  background-color: #4CAF50;
-  color: white;
+  display: inline-block;
+  padding: 6px 16px;
+  font-size: 14px;
+  background-color: #2196F3;
+  color: #fff;
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  margin-top: 8px;
+  width: auto;
+  height: auto;
 }
+
 #addProductBtn:hover {
-  background-color: #45a049;
+  background-color: #1976D2;
 }
-/* 送信ボタン（中央・コンパクトサイズ） */
+
+/* 合計金額 */
+#total {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* 予約ボタン */
 .form-submit {
   display: flex;
-  justify-content: center; /* 横方向の中央寄せ */
+  justify-content: center;
   margin-top: 20px;
 }
 
@@ -167,3 +82,35 @@ textarea {
 .form-submit button:hover {
   background-color: #45a049;
 }
+
+/* 商品行を横並びにする */
+.product-row {
+  display: flex;
+  align-items: center;   /* 縦方向の中央揃え */
+  gap: 8px;              /* 要素間の余白 */
+  margin-bottom: 6px;
+}
+
+.product-row select {
+  flex: 1;               /* プルダウンを横幅広めに */
+  min-width: 180px;
+}
+
+.product-row input[type="number"] {
+  width: 60px;           /* 数量欄は小さめに */
+}
+
+.product-row button {
+  padding: 4px 10px;
+  font-size: 13px;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.product-row button:hover {
+  background: #d32f2f;
+}
+
