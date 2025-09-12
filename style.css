@@ -120,7 +120,7 @@ input[type="date"],
 select,
 textarea {
   flex: none;              /* 伸びすぎ防止 */
-  width: 250px;            /* 適切な幅 */
+  width: 150px;            /* 適切な幅 */
   max-width: 100%;         /* スマホで崩れないように */
   padding: 6px;
   border: 1px solid #ccc;
@@ -129,7 +129,7 @@ textarea {
 
 /* 備考欄（textarea）は少し広めに */
 textarea {
-  width: 300px;
+  width: 250px;
   height: 80px;
 }
 
@@ -138,4 +138,5 @@ body {
   margin: 0;
   padding: 20px;
   min-height: 100vh; /* 背景がページ全体をカバーする */
+
 }
