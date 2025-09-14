@@ -1,7 +1,7 @@
 body {
   font-family: "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
   width: 100%; /* 横幅 */
-  min-width: 250px; /* 横幅の最小値 */
+  max-width: 500px; /* 横幅の最大値 */
   box-sizing: border-box; /* ボーダーとパディングを幅に含める */
   margin: 20px;
   background: #f9f9f9;
