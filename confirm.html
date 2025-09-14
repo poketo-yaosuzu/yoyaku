@@ -4,37 +4,81 @@
   <meta charset="UTF-8">
   <title>予約完了</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      background: #f9f9f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .complete-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 500px;
+      text-align: center;
+    }
+    .complete-card h2 {
+      color: #28a745;
+      margin-bottom: 1rem;
+    }
+    .reservation-summary {
+      text-align: left;
+      margin: 1rem 0;
+      padding: 0;
+      list-style: none;
+    }
+    .reservation-summary li {
+      margin: 0.5rem 0;
+    }
+    .btn-home {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background: #28a745;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+  </style>
 </head>
 <body>
-  <h2>予約が完了しました</h2>
-  <p>以下の内容で受付しました。</p>
+  <div class="complete-card">
+    <h2>ご予約ありがとうございます！</h2>
+    <p>以下の内容で承りました。</p>
 
-  <table>
-    <tbody>
-      <tr><th>予約番号</th><td id="id"></td></tr>
-      <tr><th>名前</th><td id="name"></td></tr>
-      <tr><th>電話番号</th><td id="phone"></td></tr>
-      <tr><th>受取店舗</th><td id="store"></td></tr>
-      <tr><th>受取日</th><td id="pickupDate"></td></tr>
-      <tr><th>受取時間</th><td id="pickupTime"></td></tr>
-      <tr><th>商品</th><td id="products"></td></tr>
-      <tr><th>合計金額</th><td id="total"></td></tr>
-      <tr><th>備考</th><td id="memo"></td></tr>
-    </tbody>
-  </table>
+    <ul class="reservation-summary" id="reservationSummary">
+      <!-- JavaScript で挿入 -->
+    </ul>
+
+    <p>店舗にてご用意してお待ちしております。</p>
+    <p>変更などありましたら、予約店舗まで連絡をお願いします。</p>
+    <a href="index.html" class="btn-home">🏠 トップに戻る</a>
+  </div>
 
   <script>
+    // 予約データを URL パラメータから取得
     const params = new URLSearchParams(window.location.search);
-    document.getElementById("id").textContent = params.get("id");
-    document.getElementById("name").textContent = params.get("name");
-    document.getElementById("phone").textContent = params.get("phone");
-    document.getElementById("store").textContent = params.get("store");
-    document.getElementById("pickupDate").textContent = params.get("pickupDate");
-    document.getElementById("pickupTime").textContent = params.get("pickupTime");
-    document.getElementById("products").innerHTML = (params.get("products") || "").replace(/\n/g, "<br>");
-    document.getElementById("total").textContent = params.get("total");
-    document.getElementById("memo").textContent = params.get("memo");
+    const summary = document.getElementById("reservationSummary");
+
+    const items = [
+      { label: "お名前", key: "name" },
+      { label: "電話番号", key: "phone" },
+      { label: "受取日", key: "pickupDate" },
+      { label: "受取時間", key: "pickupTime" },
+      { label: "店舗", key: "store" },
+      { label: "商品", key: "products" },
+      { label: "合計金額", key: "total" }
+    ];
+
+    items.forEach(item => {
+      const li = document.createElement("li");
+      li.innerHTML = `<b>${item.label}:</b> ${params.get(item.key) || "-"}`;
+      summary.appendChild(li);
+    });
   </script>
-    <label>ご利用ありがとうございました。</label>
 </body>
 </html>

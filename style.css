@@ -1,45 +1,100 @@
+/* ページ全体 */
 body {
   font-family: "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
-  width: 100%; /* 横幅 */
-  max-width: 500px; /* 横幅の最大値 */
-  box-sizing: border-box; /* ボーダーとパディングを幅に含める */
-  margin: 20px;
-  background: #f9f9f9;
-/* フォームの余計な下マージンをなくす */
+  margin: 0;
   padding: 20px;
-  min-height: 100vh; /* 背景がページ全体をカバーする */
+  background: linear-gradient(135deg, #fceabb, #f8b500);
 }
+
+/* フォームカード */
+form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  border: 2px solid #f8b500;
+}
+
+/* 見出し */
 h2 {
-  text-align:justify;
+  text-align: center;
   margin-bottom: 20px;
-}
-
-.form-row {
-  margin-bottom: 15px;
-  display: flex;
-  align-items: center;
-}
-
-label {
-  width: 150px;
+  font-size: 22px;
+  color: #e65100;
   font-weight: bold;
 }
 
-input, select, textarea {
-  flex: 1;
-  padding: 7px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
+/* 入力欄の1行 */
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
-textarea {
-  height: 60px;
+/* ラベル */
+.form-group label {
+  width: 120px;
+  text-align: right;
+  margin-right: 10px;
+  white-space: nowrap;
+  font-weight: bold;
+  color: #444;
 }
 
-.required {
-  color: red;
-  margin-left: 4px;
+/* 予約ボタン */
+.form-submit {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
+
+.form-submit button {
+  padding: 12px 30px;
+  font-size: 16px;
+  background-color: #43a047;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.3s;
+}
+
+.form-submit button:hover {
+  background-color: #2e7d32;
+  transform: scale(1.05);
+}
+
+/* ✅ スマホ対応 */
+@media screen and (max-width: 600px) {
+  .form-group {
+    flex-direction: column; /* 縦並びに */
+    align-items: flex-start;
+  }
+
+  .form-group label {
+    width: 100%;
+    text-align: left;  /* 左寄せ */
+    margin-bottom: 6px;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;  /* 横幅いっぱいに */
+  }
+
+  #addProductBtn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .form-submit button {
+    width: 100%;  /* ボタンも横幅いっぱい */
+  }
+}
+
 
 /* 商品追加ボタン */
 #addProductBtn {
@@ -64,13 +119,6 @@ textarea {
 #total {
   font-size: 16px;
   font-weight: bold;
-}
-
-/* 予約ボタン */
-.form-submit {
-  display: flex;
-  justify-content: flex-start;
-  margin-top: 20px;
 }
 
 .form-submit button {
@@ -102,7 +150,9 @@ textarea {
 }
 
 .product-row input[type="number"] {
-  width: 20px;           /* 数量欄は小さめに */
+  width: 30px;          /* 数量欄は小さめに */
+  height: 25px;
+  padding: 1px;
 }
 
 .product-row button {
@@ -134,7 +184,7 @@ textarea {
 
 /* 備考欄（textarea）は少し広めに */
 textarea {
-  width: 200px;
+  width: 250px;
   height: 80px;
 }
 

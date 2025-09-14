@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <title>予約フォーム</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
   <h2>ご予約フォーム</h2>
   <form id="reservationForm">
     <div class="form-row">
-      <label for="name">お名前<span class="required"></span></label>
+      <label for="name">お名前<span class="required"><br></span></label>
       <input type="text" id="name" name="name" required>
     </div>
 
@@ -19,7 +20,7 @@
     </div>
 
     <div class="form-row">
-      <label for="store">受取店舗<span class="required"></span></label>
+      <label for="store">受取店舗<span class="required"><br></span></label>
       <select id="store" name="store" required>
         <option value="">選択してください</option>
         <option value="ポケット店">ポケット店</option>
@@ -34,7 +35,7 @@
     </div>
 
     <div class="form-row">
-      <label for="pickupTime">受取時間<span class="required"><br>*11時～18時まで30分刻み</span></label>
+      <label for="pickupTime">受取時間<span class="required"><br>*11時～18時まで30分刻みです</span></label>
       <select id="pickupTime" name="pickupTime" required></select>
     </div>
  <a href="https://drive.google.com/file/d/1ozipMuv4eflwsTPUNdYStDJpJDweeLva/view?usp=drive_link" target="_blank" rel="noopener noreferrer">商品パンフレットはこちら</a>
