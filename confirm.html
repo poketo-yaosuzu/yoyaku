@@ -47,7 +47,7 @@
 </head>
 <body>
   <div class="complete-card">
-    <h2>ご予約ありがとうございます！</h2>
+    <h2>🎉ご予約ありがとうございます！</h2>
     <p>以下の内容で承りました。</p>
 
     <ul class="reservation-summary" id="reservationSummary">
@@ -56,7 +56,7 @@
 
     <p>店舗にてご用意してお待ちしております。</p>
     <p>変更などありましたら、予約店舗まで連絡をお願いします。</p>
-    <a href="index.html" class="btn-home">🏠 トップに戻る</a>
+  <button id="closeBtn" class="btn-home">✖ 閉じる</button>
   </div>
 
   <script>
@@ -78,6 +78,13 @@
       const li = document.createElement("li");
       li.innerHTML = `<b>${item.label}:</b> ${params.get(item.key) || "-"}`;
       summary.appendChild(li);
+    });
+        document.getElementById("closeBtn").addEventListener("click", () => {
+      if (typeof liff !== "undefined") {
+        liff.closeWindow();
+      } else {
+        window.close();
+      }
     });
   </script>
 </body>

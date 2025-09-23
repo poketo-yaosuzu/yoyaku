@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const rm = document.createElement("button");
     rm.type = "button";
-    rm.textContent = "削除";
+    rm.textContent = "✖ 削除";
     rm.addEventListener("click", () => {
       row.remove();
       updateTotal();

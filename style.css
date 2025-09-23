@@ -4,6 +4,9 @@ body {
   margin: 0;
   padding: 20px;
   background: linear-gradient(135deg, #fceabb, #f8b500);
+  min-height: 100vh; /* 背景がページ全体をカバーする */
+  justify-content: center;
+  align-items: flex-start;
 }
 
 /* フォームカード */
