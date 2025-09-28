@@ -33,7 +33,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const sel = document.createElement("select");
     sel.required = true;
     sel.innerHTML = `<option value="">商品を選択</option>` +
-      PRODUCTS.map(p => `<option value="${p.name}" data-price="${p.price}">${p.name} ${p.price}</option>`).join("");
+      PRODUCTS.map(p =>
+        `<option value="${p.name}" data-price="${p.price}">${p.name} ${p.price}</option>`
+      ).join("");
 
     const qty = document.createElement("input");
     qty.type = "number";
@@ -64,17 +66,16 @@ document.addEventListener("DOMContentLoaded", () => {
     rows.forEach(row => {
       const select = row.querySelector("select");
       const qty = row.querySelector("input[type=number]");
-      if (select.value) {
-        const price = parseInt(select.options[select.selectedIndex].dataset.price, 10);
-        const quantity = parseInt(qty.value, 10);
+      if (select.value && select.selectedIndex > 0) {
+        const price = parseInt(select.options[select.selectedIndex].dataset.price || "0", 10);
+        const quantity = parseInt(qty.value, 10) || 0;
         total += price * quantity;
       }
     });
     document.getElementById("total").textContent = total;
   }
 
-  // 初期表示
-  addProductRow();
+  // 初期状態は商品0行
   addProductBtn.addEventListener("click", addProductRow);
 
   // 受取日：今日から3日後以降
@@ -101,7 +102,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("reservationForm").addEventListener("submit", function(e) {
     e.preventDefault();
 
-    // 商品が選択されているか確認
     const rows = productsDiv.querySelectorAll(".product-row");
     let productDetails = [];
     rows.forEach(row => {
@@ -111,6 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
         productDetails.push(`${select.value} ×${qty.value}`);
       }
     });
+
     if (productDetails.length === 0) {
       alert("商品を1つ以上選んでください");
       return;
@@ -127,23 +128,30 @@ document.addEventListener("DOMContentLoaded", () => {
       memo: document.getElementById("memo").value
     };
 
+    // --- モーダル表示 ---
+    const modal = document.getElementById("loadingModal");
+    if (modal) modal.style.display = "flex";
+
     fetch(GAS_URL, {
       method: "POST",
       body: new URLSearchParams(data)
     })
-    .then(res => res.json())
-    .then(res => {
-      if (res.result === "success") {
-        const query = new URLSearchParams({
-          id: res.id,
-          ...data
-        }).toString();
-        window.location.href = "confirm.html?" + query;
-      } else {
-        alert("エラー: " + res.message);
-      }
-    })
-    .catch(err => alert("通信エラー: " + err));
+      .then(res => {
+        if (!res.ok) throw new Error("HTTPエラー: " + res.status);
+        return res.json();
+      })
+      .then(res => {
+        if (modal) modal.style.display = "none";
+        if (res.result === "success") {
+          const query = new URLSearchParams({ id: res.id, ...data }).toString();
+          window.location.href = "confirm.html?" + query;
+        } else {
+          alert("エラー: " + res.message);
+        }
+      })
+      .catch(err => {
+        if (modal) modal.style.display = "none";
+        alert("通信エラー: " + err.message);
+      });
   });
-});
-
+}); // ← これでスッキリ閉じます
