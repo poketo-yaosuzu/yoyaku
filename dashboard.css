@@ -1,17 +1,42 @@
-.wrap { max-width: 1100px; margin: 16px auto; padding: 12px; font-family: system-ui, sans-serif; }
-h1 { font-size: 1.3rem; margin: 0 0 12px; }
+body {
+  font-family: "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  background: #f4f4f9;
+  margin: 0;
+  padding: 0;
+}
 
-.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
-.filters label { display: flex; align-items: center; gap: 6px; font-size: .95rem; }
-.filters select, .filters input[type="date"] { padding: 8px; border: 1px solid #ddd; border-radius: 8px; }
-.filters button { padding: 8px 12px; background: #2c7be5; color: #fff; border: 0; border-radius: 8px; }
+.container {
+  max-width: 1000px;
+  margin: 30px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
 
-.table-container { overflow-x: auto; border: 1px solid #eee; border-radius: 10px; }
-table { border-collapse: collapse; width: 100%; min-width: 900px; }
-th, td { border-bottom: 1px solid #eee; padding: 8px; text-align: left; vertical-align: top; }
-th { background: #fafafa; position: sticky; top: 0; z-index: 1; }
-tbody tr:hover { background: #fcfcff; }
+h1, h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
 
-@media (max-width: 640px) {
-  .filters { gap: 10px; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px 10px;
+  text-align: center;
+}
+
+th {
+  background: #2196F3;
+  color: #fff;
+}
+
+tbody tr:nth-child(odd) {
+  background: #f9f9f9;
 }

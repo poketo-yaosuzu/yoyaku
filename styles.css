@@ -16,65 +16,15 @@ body {
   border-radius: 16px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   max-width: 600px;
-  width: 90%;   /* デフォルトで少し余白を残す */
-}
-
-@media (max-width: 480px) {
-  .container {
-    margin: 1rem;
-    padding: 1rem;
-  }
-  .product-row select {
-    min-width: auto;
-    flex: 1;
-  }
-}
-
-/* 📱 スマホ画面（〜480px）用 */
-@media (max-width: 480px) {
-  .container {
-    margin: 1rem;
-    padding: 1rem 1.2rem;
-    width: 95%;         /* 横幅は9割くらいで中央 */
-    border-radius: 12px;
-  }
-
-  input, select, textarea {
-    font-size: 14px;
-    padding: 0.5rem;
-  }
-
-  .product-row {
-    flex-direction: column; /* 狭い画面では縦積み */
-    align-items: stretch;
-  }
-
-  .product-row select {
-    width: 100%;
-    min-width: auto;
-  }
-
-  .product-row input[type="number"] {
-    width: 70px;
-    margin-top: 6px;
-  }
-
-  .product-row button {
-    margin-top: 6px;
-    width: 100%;  /* 削除ボタンを横幅いっぱい */
-  }
-
-  .modal-content {
-    width: 85%;
-    padding: 15px;
-    font-size: 14px;
-  }
+  width: 90%;
+  border-top: 6px solid #06c755; /* LINEグリーンのアクセント */
 }
 
 h2 {
   text-align: center;
-  margin-bottom: 1rem;
-  color: #28a745;
+  margin-bottom: 1.5rem;
+  color: #06c755;
+  font-size: 1.4rem;
 }
 
 .form-group {
@@ -84,13 +34,16 @@ h2 {
 label {
   display: block;
   margin-bottom: 0.3rem;
+  font-weight: bold;
+  color: #333;
 }
 
 input, select, textarea {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.6rem;
   border: 1px solid #ccc;
   border-radius: 8px;
+  font-size: 15px;
 }
 
 textarea#note {
@@ -111,14 +64,15 @@ button {
   margin-top: 1rem;
   border: none;
   border-radius: 8px;
-  background: #28a745;
+  background: #06c755;
   color: white;
   font-size: 1rem;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 button:hover {
-  background: #218838;
+  background: #04a346;
 }
 
 #addProduct {
@@ -138,26 +92,26 @@ button:hover {
   border: 1px solid #ccc;
   padding: 10px;
   border-radius: 6px;
-  background: #f9f9f9;
+  background: #fafafa;
 }
 
-/* 商品行を横並びにする */
+/* 商品行を横並び */
 .product-row {
   display: flex;
-  align-items: center;   /* 縦方向の中央揃え */
-  gap: 8px;              /* 要素間の余白 */
+  align-items: center;
+  gap: 8px;
   margin-bottom: 6px;
 }
 
 .product-row select {
-  flex: 1;               /* プルダウンを横幅広めに */
-  min-width: 220px;
+  flex: 1;
+  min-width: 250px;
 }
 
 .product-row input[type="number"] {
-  width: 40px;          /* 数量欄は小さめに */
-  height: 30px;
-  padding: 1px;
+  width: 50px;
+  height: 20px;
+  text-align: center;
 }
 
 .product-row button {
@@ -189,7 +143,7 @@ button:hover {
   border-radius: 20px;
   text-align: center;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  border: 2px solid #06c755; /* LINEグリーン */
+  border: 2px solid #06c755;
   font-size: 16px;
   color: #333;
   min-width: 200px;
@@ -203,10 +157,50 @@ button:hover {
   height: 40px;
   animation: spin 1s linear infinite;
   margin: 0 auto 10px;
-  margin-bottom: 15px;
 }
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* 📱 スマホ用（〜480px） */
+@media (max-width: 480px) {
+  .container {
+    margin: 1rem;
+    padding: 1rem 1.2rem;
+    width: 95%;
+    border-radius: 12px;
+  }
+
+  input, select, textarea {
+    font-size: 14px;
+    padding: 0.5rem;
+  }
+
+  .product-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .product-row select {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .product-row input[type="number"] {
+    width: 70px;
+    margin-top: 6px;
+  }
+
+  .product-row button {
+    margin-top: 6px;
+    width: 100%;
+  }
+
+  .modal-content {
+    width: 85%;
+    padding: 15px;
+    font-size: 14px;
+  }
 }

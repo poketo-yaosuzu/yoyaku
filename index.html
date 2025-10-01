@@ -5,9 +5,23 @@
   <title>予約フォーム</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
-<body>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      await liff.init({ liffId: "2007937055-Za6zOL4e" });
+      if (!liff.isLoggedIn()) {
+        liff.login();
+      }
+    } catch (err) {
+      console.error("LIFF初期化エラー:", err);
+    }
+  });
+</script>
 
+</head>
+  
+<body>
   <form id="reservationForm">
     <h2>ご予約フォーム</h2>
     <div class="form-row">
@@ -17,7 +31,7 @@
 
     <div class="form-row">
       <label for="phone">電話番号<span class="required"><br></span></label>
-      <input type="tel" id="phone" name="phone" required>
+      <input type="tel" id="phone" name="phone"  required>
     </div>
 
     <div class="form-row">
@@ -53,12 +67,12 @@
 
     <div class="form-row">
       <label>合計金額</label>
-      <div id="total">0</div>円＋税
+      <div><span id="total">0</span> 円＋税</div>
     </div>
     <label>お支払いは受取店舗のレジで、現金またはクレジット決済となります</label>
     <div class="form-row">
       <label for="memo">備考</label>
-      <textarea id="memo" name="memo"></textarea>
+      <textarea id="memo" name="memo" placeholder="ご要望などあれば記入して下さい"></textarea>
     </div>
 
 <!-- 送信中モーダル -->
@@ -68,6 +82,8 @@
     <p>送信中です...</p>
   </div>
 </div>
+  
+<label>※上記内容でよろしければ、下の予約するボタンを押して下さい※</label>
     
  <div class="form-submit">
     <button type="submit">予約する</button>

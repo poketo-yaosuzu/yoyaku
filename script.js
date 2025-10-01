@@ -1,8 +1,8 @@
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzPbS23lntPHdU7SLNCP5GhXCwlCSntiv5mOsJHSJz5cnRafMTUQ1jABE_HCjZC6cgLJw/exec";
 
-function setEnv() {
-  PropertiesService.getScriptProperties().setProperty("LIFF_ID", "2007937055-Za6zOL4e");
-}
+PropertiesService.getScriptProperties().getProperty("LIFF_ID");
+PropertiesService.getScriptProperties().getProperty("LINE_TOKEN");
+
 
 // 商品リスト
 const PRODUCTS = [
@@ -98,6 +98,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+// LIFF初期化後に userId を取得
+let userId = "";
+
+liff.init({ liffId: "LIFF_ID" })
+  .then(() => {
+    if (!liff.isLoggedIn()) {
+      liff.login();
+    } else {
+      return liff.getProfile();
+    }
+  })
+  .then(profile => {
+    userId = profile.userId;
+  });  
+  
   // 送信処理
   document.getElementById("reservationForm").addEventListener("submit", function(e) {
     e.preventDefault();
@@ -125,7 +140,8 @@ document.addEventListener("DOMContentLoaded", () => {
       pickupTime: document.getElementById("pickupTime").value,
       products: productDetails.join("\n"),
       total: document.getElementById("total").textContent,
-      memo: document.getElementById("memo").value
+      memo: document.getElementById("memo").value,
+      userId: userId  // ← これを送信
     };
 
     // --- モーダル表示 ---
