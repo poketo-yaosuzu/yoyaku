@@ -147,6 +147,8 @@ liff.init({ liffId: "LIFF_ID" })
     // --- モーダル表示 ---
     const modal = document.getElementById("loadingModal");
     if (modal) modal.style.display = "flex";
+    
+    console.log("送信データ:", data);
 
     fetch(GAS_URL, {
       method: "POST",
