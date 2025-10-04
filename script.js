@@ -1,9 +1,5 @@
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzPbS23lntPHdU7SLNCP5GhXCwlCSntiv5mOsJHSJz5cnRafMTUQ1jABE_HCjZC6cgLJw/exec";
 
-PropertiesService.getScriptProperties().getProperty("LIFF_ID");
-PropertiesService.getScriptProperties().getProperty("LINE_TOKEN");
-
-
 // 商品リスト
 const PRODUCTS = [
   { name: "【葵】５人前", price: 7800 },
@@ -174,3 +170,4 @@ liff.init({ liffId: "2007937057-4bzK6wWZ" })
   });
 
 }); // ← これでスッキリ閉じます
+
