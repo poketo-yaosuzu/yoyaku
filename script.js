@@ -94,17 +94,18 @@ document.addEventListener("DOMContentLoaded", async () => {
    * 💬 LIFF 初期化
    ***************/
   try {
-    await liff.init({ liffId: "2007937057-4bzK6wWZ" });
-    if (!liff.isLoggedIn()) {
-      liff.login();
-    } else {
-      const profile = await liff.getProfile();
-      userId = profile.userId;
-      console.log("取得したuserId:", userId);
-    }
-  } catch (err) {
-    console.error("LIFF初期化エラー:", err);
+  await liff.init({ liffId: "2007937057-4bzK6wWZ" });
+  if (!liff.isLoggedIn()) {
+    liff.login();
+    return;
   }
+  const profile = await liff.getProfile();
+  userId = profile.userId;
+  console.log("取得したuserId:", userId);
+} catch (err) {
+  console.error("LIFF初期化エラー:", err);
+}
+
 
   /***************
    * 📤 フォーム送信処理
@@ -150,7 +151,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (result.result === "success") {
         alert("ご予約を受け付けました！LINEにも確認メッセージをお送りします。");
-        window.location.href = "confirm.html?" + new URLSearchParams({ id: result.id });
+        if (result.result === "success") {
+  alert("ご予約を受け付けました！LINEにも確認メッセージをお送りします。");
+
+  // URLパラメータを丁寧にエンコードして渡す
+  const params = new URLSearchParams({
+    id: result.id,
+    name: data.name,
+    phone: data.phone,
+    store: data.store,
+    pickupDate: data.pickupDate,
+    pickupTime: data.pickupTime,
+    products: data.products,
+    total: data.total,
+    memo: data.memo
+  });
+
+  window.location.href = "confirm.html?" + params.toString();
+}
       } else {
         alert("エラー: " + result.message);
       }

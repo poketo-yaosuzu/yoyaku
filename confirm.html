@@ -3,88 +3,135 @@
 <head>
   <meta charset="UTF-8">
   <title>予約完了</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
     body {
-      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
-      background: #f9f9f9;
+      font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
+      background: #f7f8fa;
       display: flex;
       justify-content: center;
-      align-items: center;
-      height: 100vh;
+      align-items: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px 10px;
     }
+
     .complete-card {
-      background: white;
-      padding: 2rem;
+      background: #fff;
+      padding: 1.5rem;
       border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      max-width: 500px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 420px;
       text-align: center;
+      box-sizing: border-box;
+      margin-top: 20px;
     }
+
     .complete-card h2 {
-      color: #28a745;
+      color: #1db446;
       margin-bottom: 1rem;
+      font-size: 1.3rem;
     }
+
     .reservation-summary {
       text-align: left;
       margin: 1rem 0;
       padding: 0;
       list-style: none;
+      font-size: 0.95rem;
     }
+
     .reservation-summary li {
-      margin: 0.5rem 0;
+      margin: 0.4rem 0;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 4px;
     }
+
     .btn-home {
-      display: inline-block;
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      background: #28a745;
+      display: block;
+      margin: 1.5rem auto 0;
+      padding: 0.7rem 1rem;
+      background: #1db446;
       color: white;
       border-radius: 8px;
-      text-decoration: none;
+      border: none;
+      font-size: 1rem;
+      width: 100%;
+      max-width: 260px;
+      cursor: pointer;
+    }
+
+    .btn-home:hover {
+      opacity: 0.9;
+    }
+
+    @media (max-height: 700px) {
+      .complete-card {
+        margin-top: 8px;
+        padding: 1rem;
+      }
+      .btn-home {
+        margin-top: 1rem;
+      }
     }
   </style>
 </head>
+
 <body>
   <div class="complete-card">
-    <h2>🎉ご予約ありがとうございます！</h2>
+    <h2>🎉 ご予約ありがとうございます！</h2>
     <p>以下の内容で承りました。</p>
 
     <ul class="reservation-summary" id="reservationSummary">
-      <!-- JavaScript で挿入 -->
+      <!-- JavaScriptで挿入 -->
     </ul>
 
     <p>店舗にてご用意してお待ちしております。</p>
-    <p>変更などありましたら、予約店舗まで連絡をお願いします。</p>
-  <button id="closeBtn" class="btn-home">✖ 閉じる</button>
+    <p>変更などがありましたら、予約店舗までご連絡ください。</p>
+
+    <button id="closeBtn" class="btn-home">✖ 閉じる</button>
   </div>
 
   <script>
-    // 予約データを URL パラメータから取得
-    const params = new URLSearchParams(window.location.search);
-    const summary = document.getElementById("reservationSummary");
-
-    const items = [
-      { label: "お名前", key: "name" },
-      { label: "電話番号", key: "phone" },
-      { label: "受取日", key: "pickupDate" },
-      { label: "受取時間", key: "pickupTime" },
-      { label: "店舗", key: "store" },
-      { label: "商品", key: "products" },
-      { label: "合計金額", key: "total" }
-    ];
-
-    items.forEach(item => {
-      const li = document.createElement("li");
-      li.innerHTML = `<b>${item.label}:</b> ${params.get(item.key) || "-"}`;
-      summary.appendChild(li);
-    });
-    document.getElementById("closeBtn").addEventListener("click", () => {
-      if (typeof liff !== "undefined") {
-        liff.closeWindow();
-      } else {
-        window.close();
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        // LIFFを初期化（安全のため）
+        await liff.init({ liffId: "2007937057-4bzK6wWZ" });
+      } catch (err) {
+        console.warn("LIFF初期化スキップ:", err);
       }
+
+      // URLパラメータから予約情報を取得
+      const params = new URLSearchParams(window.location.search);
+      const summary = document.getElementById("reservationSummary");
+
+      const items = [
+        { label: "予約番号", key: "id" },
+        { label: "お名前", key: "name" },
+        { label: "電話番号", key: "phone" },
+        { label: "受取店舗", key: "store" },
+        { label: "受取日", key: "pickupDate" },
+        { label: "受取時間", key: "pickupTime" },
+        { label: "商品", key: "products" },
+        { label: "合計金額", key: "total" }
+      ];
+
+      items.forEach(item => {
+        const li = document.createElement("li");
+        li.innerHTML = `<b>${item.label}：</b> ${params.get(item.key) || "-"}`;
+        summary.appendChild(li);
+      });
+
+      // 閉じるボタン
+      document.getElementById("closeBtn").addEventListener("click", () => {
+        if (typeof liff !== "undefined" && liff.isInClient()) {
+          liff.closeWindow();
+        } else {
+          window.close();
+        }
+      });
     });
   </script>
 </body>
