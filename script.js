@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // LIFF初期化後に userId を取得
 let userId = "";
 
-liff.init({ liffId: "LIFF_ID" })
+liff.init({ liffId: "2007937057-4bzK6wWZ" })
   .then(() => {
     if (!liff.isLoggedIn()) {
       liff.login();
@@ -172,4 +172,5 @@ liff.init({ liffId: "LIFF_ID" })
         alert("通信エラー: " + err.message);
       });
   });
+
 }); // ← これでスッキリ閉じます
