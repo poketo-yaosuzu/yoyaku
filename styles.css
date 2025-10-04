@@ -1,206 +1,139 @@
 body {
-  font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
-  background: #f0f2f5; /* 薄いグレーでカードを引き立てる */
+  font-family: "Noto Sans JP", sans-serif;
+  background-color: #f5f7fa;
   margin: 0;
   padding: 0;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: flex-start; /* 上寄せ */
   min-height: 100vh;
 }
 
-.container {
-  background: white;
-  margin: 2rem auto;
-  padding: 2rem;
+form {
+  background: #fff;
+  width: 95%;
+  max-width: 480px;
+  margin: 20px auto;
+  padding: 16px 20px;
   border-radius: 16px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  max-width: 600px;
-  width: 90%;
-  border-top: 6px solid #06c755; /* LINEグリーンのアクセント */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
+/* タイトル */
 h2 {
   text-align: center;
-  margin-bottom: 1.5rem;
-  color: #06c755;
-  font-size: 1.4rem;
+  color: #1db446;
+  font-size: 1.3rem;
+  margin-bottom: 10px;
 }
 
-.form-group {
-  margin-bottom: 1rem;
+/* 各入力ブロック */
+.form-row {
+  margin-bottom: 10px;
 }
 
 label {
+  font-weight: 600;
+  font-size: 0.9rem;
   display: block;
-  margin-bottom: 0.3rem;
-  font-weight: bold;
-  color: #333;
+  margin-bottom: 3px;
 }
 
-input, select, textarea {
+input[type="text"],
+input[type="tel"],
+input[type="date"],
+select,
+textarea {
   width: 100%;
-  padding: 0.6rem;
+  padding: 8px;
+  font-size: 0.9rem;
   border: 1px solid #ccc;
   border-radius: 8px;
-  font-size: 15px;
+  box-sizing: border-box;
 }
 
-textarea#note {
-  min-height: 100px;
-  resize: vertical;
-}
-
-input.quantity {
-  width: 80px;
-  margin-left: 0.5rem;
-  text-align: center;
-}
-
-button {
-  display: block;
-  width: 100%;
-  padding: 0.7rem;
-  margin-top: 1rem;
+/* ボタン */
+button,
+.form-submit button {
+  background-color: #1db446;
+  color: white;
   border: none;
   border-radius: 8px;
-  background: #06c755;
-  color: white;
+  padding: 10px 16px;
   font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s;
+  width: 100%;
 }
 
 button:hover {
-  background: #04a346;
+  opacity: 0.9;
 }
 
-#addProduct {
-  background: #007bff;
-}
-
-#addProduct:hover {
-  background: #0056b3;
-}
-
-.required {
-  color: red;
-}
-
-.product-item {
-  margin-bottom: 16px;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 6px;
-  background: #fafafa;
-}
-
-/* 商品行を横並び */
+/* 商品追加部分 */
 .product-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
 .product-row select {
   flex: 1;
-  min-width: 250px;
 }
 
 .product-row input[type="number"] {
-  width: 50px;
-  height: 20px;
-  text-align: center;
+  width: 60px;
 }
 
 .product-row button {
-  padding: 4px 10px;
-  font-size: 13px;
-  background: #f44336;
+  background: #e74c3c;
   color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 6px 8px;
+  border-radius: 6px;
+  width: auto;
 }
 
+/* モーダル（送信中） */
 .modal {
   display: none;
   position: fixed;
+  z-index: 9999;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255,255,255,0.7);
-  z-index: 9999;
+  background: rgba(255, 255, 255, 0.9);
   justify-content: center;
   align-items: center;
-}
-
-.modal-content {
-  background: #fff;
-  padding: 20px 40px;
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  border: 2px solid #06c755;
-  font-size: 16px;
-  color: #333;
-  min-width: 200px;
+  flex-direction: column;
 }
 
 .line-spinner {
-  border: 6px solid #e6f7ec;
-  border-top: 6px solid #06c755;
+  width: 36px;
+  height: 36px;
+  border: 3px solid #ccc;
+  border-top-color: #1db446;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
   animation: spin 1s linear infinite;
-  margin: 0 auto 10px;
+  margin-bottom: 10px;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to { transform: rotate(360deg); }
 }
 
-/* 📱 スマホ用（〜480px） */
-@media (max-width: 480px) {
-  .container {
-    margin: 1rem;
-    padding: 1rem 1.2rem;
-    width: 95%;
-    border-radius: 12px;
-  }
+/* テキストサイズ調整 */
+textarea {
+  height: 80px;
+}
 
-  input, select, textarea {
-    font-size: 14px;
-    padding: 0.5rem;
+/* 小さい画面での調整 */
+@media (max-height: 700px) {
+  form {
+    margin-top: 8px;
+    padding: 12px;
   }
-
-  .product-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .product-row select {
-    width: 100%;
-    min-width: auto;
-  }
-
-  .product-row input[type="number"] {
-    width: 70px;
-    margin-top: 6px;
-  }
-
-  .product-row button {
-    margin-top: 6px;
-    width: 100%;
-  }
-
-  .modal-content {
-    width: 85%;
-    padding: 15px;
-    font-size: 14px;
+  h2 {
+    font-size: 1.1rem;
   }
 }

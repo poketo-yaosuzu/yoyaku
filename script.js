@@ -1,4 +1,4 @@
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzPbS23lntPHdU7SLNCP5GhXCwlCSntiv5mOsJHSJz5cnRafMTUQ1jABE_HCjZC6cgLJw/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyrVYR14bb_PlMbo-yK0sGAc_hJ0Pvyul0AxnCwGWk1C7zFDIGMnVPaDTjZmrCxPUqkQg/exec";
 
 // 商品リスト
 const PRODUCTS = [
@@ -17,11 +17,33 @@ const PRODUCTS = [
   { name: "折箱入りおはぎ", price: 800 }
 ];
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const productsDiv = document.getElementById("products");
   const addProductBtn = document.getElementById("addProductBtn");
+  const pickupTime = document.getElementById("pickupTime");
+  const pickupDate = document.getElementById("pickupDate");
+  let userId = "";
 
-  // 商品行追加
+  /***************
+   * 🕓 受取日・時間設定
+   ***************/
+  const today = new Date();
+  today.setDate(today.getDate() + 3);
+  pickupDate.min = today.toISOString().split("T")[0];
+
+  for (let h = 11; h <= 18; h++) {
+    for (let m of [0, 30]) {
+      if (h === 18 && m > 0) continue;
+      const opt = document.createElement("option");
+      opt.value = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+      opt.textContent = opt.value;
+      pickupTime.appendChild(opt);
+    }
+  }
+
+  /***************
+   * 🛍 商品追加
+   ***************/
   function addProductRow() {
     const row = document.createElement("div");
     row.className = "product-row";
@@ -29,9 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const sel = document.createElement("select");
     sel.required = true;
     sel.innerHTML = `<option value="">商品を選択</option>` +
-      PRODUCTS.map(p =>
-        `<option value="${p.name}" data-price="${p.price}">${p.name} ${p.price}</option>`
-      ).join("");
+      PRODUCTS.map(p => `<option value="${p.name}" data-price="${p.price}">${p.name} ${p.price}円</option>`).join("");
 
     const qty = document.createElement("input");
     qty.type = "number";
@@ -51,123 +71,92 @@ document.addEventListener("DOMContentLoaded", () => {
     row.appendChild(sel);
     row.appendChild(qty);
     row.appendChild(rm);
-
     productsDiv.appendChild(row);
   }
 
-  // 合計金額更新
+  addProductBtn.addEventListener("click", addProductRow);
+
   function updateTotal() {
     let total = 0;
     const rows = productsDiv.querySelectorAll(".product-row");
     rows.forEach(row => {
       const select = row.querySelector("select");
       const qty = row.querySelector("input[type=number]");
-      if (select.value && select.selectedIndex > 0) {
-        const price = parseInt(select.options[select.selectedIndex].dataset.price || "0", 10);
-        const quantity = parseInt(qty.value, 10) || 0;
-        total += price * quantity;
+      if (select.value) {
+        const price = parseInt(select.selectedOptions[0].dataset.price);
+        total += price * parseInt(qty.value);
       }
     });
     document.getElementById("total").textContent = total;
   }
 
-  // 初期状態は商品0行
-  addProductBtn.addEventListener("click", addProductRow);
-
-  // 受取日：今日から3日後以降
-  const pickupDate = document.getElementById("pickupDate");
-  const today = new Date();
-  today.setDate(today.getDate() + 3);
-  pickupDate.min = today.toISOString().split("T")[0];
-
-  // 受取時間：11:00〜18:00 (30分刻み)
-  const pickupTime = document.getElementById("pickupTime");
-  for (let h = 11; h <= 18; h++) {
-    for (let m of [0, 30]) {
-      if (h === 18 && m > 0) continue;
-      const hh = String(h).padStart(2, "0");
-      const mm = String(m).padStart(2, "0");
-      const opt = document.createElement("option");
-      opt.value = `${hh}:${mm}`;
-      opt.textContent = `${hh}:${mm}`;
-      pickupTime.appendChild(opt);
-    }
-  }
-
-// LIFF初期化後に userId を取得
-let userId = "";
-
-liff.init({ liffId: "2007937057-4bzK6wWZ" })
-  .then(() => {
+  /***************
+   * 💬 LIFF 初期化
+   ***************/
+  try {
+    await liff.init({ liffId: "2007937057-4bzK6wWZ" });
     if (!liff.isLoggedIn()) {
       liff.login();
     } else {
-      return liff.getProfile();
+      const profile = await liff.getProfile();
+      userId = profile.userId;
+      console.log("取得したuserId:", userId);
     }
-  })
-  .then(profile => {
-    userId = profile.userId;
-  });  
-  
-  // 送信処理
-  document.getElementById("reservationForm").addEventListener("submit", function(e) {
+  } catch (err) {
+    console.error("LIFF初期化エラー:", err);
+  }
+
+  /***************
+   * 📤 フォーム送信処理
+   ***************/
+  document.getElementById("reservationForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const rows = productsDiv.querySelectorAll(".product-row");
-    let productDetails = [];
+    const products = [];
     rows.forEach(row => {
-      const select = row.querySelector("select");
+      const sel = row.querySelector("select");
       const qty = row.querySelector("input[type=number]");
-      if (select.value) {
-        productDetails.push(`${select.value} ×${qty.value}`);
-      }
+      if (sel.value) products.push(`${sel.value} ×${qty.value}`);
     });
 
-    if (productDetails.length === 0) {
+    if (products.length === 0) {
       alert("商品を1つ以上選んでください");
       return;
     }
 
     const data = {
-      name: document.getElementById("name").value,
-      phone: document.getElementById("phone").value,
-      store: document.getElementById("store").value,
-      pickupDate: document.getElementById("pickupDate").value,
-      pickupTime: document.getElementById("pickupTime").value,
-      products: productDetails.join("\n"),
-      total: document.getElementById("total").textContent,
-      memo: document.getElementById("memo").value,
-      userId: userId  // ← これを送信
+      name: name.value,
+      phone: phone.value,
+      store: store.value,
+      pickupDate: pickupDate.value,
+      pickupTime: pickupTime.value,
+      products: products.join("\n"),
+      total: total.textContent,
+      memo: memo.value,
+      userId
     };
 
-    // --- モーダル表示 ---
     const modal = document.getElementById("loadingModal");
-    if (modal) modal.style.display = "flex";
-    
-    console.log("送信データ:", data);
+    modal.style.display = "flex";
 
-    fetch(GAS_URL, {
-      method: "POST",
-      body: new URLSearchParams(data)
-    })
-      .then(res => {
-        if (!res.ok) throw new Error("HTTPエラー: " + res.status);
-        return res.json();
-      })
-      .then(res => {
-        if (modal) modal.style.display = "none";
-        if (res.result === "success") {
-          const query = new URLSearchParams({ id: res.id, ...data }).toString();
-          window.location.href = "confirm.html?" + query;
-        } else {
-          alert("エラー: " + res.message);
-        }
-      })
-      .catch(err => {
-        if (modal) modal.style.display = "none";
-        alert("通信エラー: " + err.message);
+    try {
+      const res = await fetch(GAS_URL, {
+        method: "POST",
+        body: new URLSearchParams(data)
       });
+      const result = await res.json();
+      modal.style.display = "none";
+
+      if (result.result === "success") {
+        alert("ご予約を受け付けました！LINEにも確認メッセージをお送りします。");
+        window.location.href = "confirm.html?" + new URLSearchParams({ id: result.id });
+      } else {
+        alert("エラー: " + result.message);
+      }
+    } catch (err) {
+      modal.style.display = "none";
+      alert("通信エラー: " + err.message);
+    }
   });
-
-}); // ← これでスッキリ閉じます
-
+});
