@@ -95,17 +95,18 @@ document.addEventListener("DOMContentLoaded", async () => {
    ***************/
   try {
   await liff.init({ liffId: "2007937057-4bzK6wWZ" });
+
   if (!liff.isLoggedIn()) {
     liff.login();
-    return;
+    return; // ← ログイン直後は再読み込みが必要なので、ここで止める！
   }
+
   const profile = await liff.getProfile();
-  userId = profile.userId;
+  userId = profile.userId || "";
   console.log("取得したuserId:", userId);
 } catch (err) {
   console.error("LIFF初期化エラー:", err);
 }
-
 
   /***************
    * 📤 フォーム送信処理
@@ -142,10 +143,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     modal.style.display = "flex";
 
     try {
-      const res = await fetch(GAS_URL, {
-        method: "POST",
-        body: new URLSearchParams(data)
-      });
+     const res = await fetch(GAS_URL, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/x-www-form-urlencoded"
+  },
+  body: new URLSearchParams(data)
+});
       const result = await res.json();
       modal.style.display = "none";
 
