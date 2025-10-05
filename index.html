@@ -2,41 +2,181 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>予約フォーム</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ご予約フォーム</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<script>
-  document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      await liff.init({ liffId: "2007937057-4bzK6wWZ" });
-      if (!liff.isLoggedIn()) {
-        liff.login();
-      }
-    } catch (err) {
-      console.error("LIFF初期化エラー:", err);
-    }
-  });
-</script>
 
+  <style>
+    body {
+      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    form {
+      background: #fff;
+      width: 100%;
+      max-width: 420px;
+      padding: 1.5rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-sizing: border-box;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-row {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.3rem;
+      color: #444;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      resize: none;
+      height: 80px;
+    }
+
+    button, .btn {
+      display: inline-block;
+      width: 100%;
+      padding: 0.8rem 0;
+      font-size: 1rem;
+      color: white;
+      background: #28a745;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+      text-align: center;
+    }
+
+    button:hover, .btn:hover {
+      background: #23913f;
+    }
+
+    #addProductBtn {
+      background: #007bff;
+    }
+
+    #addProductBtn:hover {
+      background: #0066cc;
+    }
+
+    .product-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .product-row select, .product-row input {
+      flex: 1;
+    }
+
+    .product-row button {
+      background: #dc3545;
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    .total {
+      text-align: right;
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-top: 0.5rem;
+      color: #333;
+    }
+
+    #loadingModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.8);
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 9999;
+    }
+
+    .line-spinner {
+      border: 4px solid #ccc;
+      border-top: 4px solid #28a745;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 0.8rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .note {
+      font-size: 0.85rem;
+      color: #555;
+      margin-bottom: 1rem;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #777;
+      margin-top: 1rem;
+    }
+  </style>
 </head>
-  
+
 <body>
   <form id="reservationForm">
     <h2>ご予約フォーム</h2>
+
     <div class="form-row">
-      <label for="name">お名前<span class="required"><br></span></label>
-      <input type="text" id="name" name="name" required>
+      <label for="name">お名前</label>
+      <input type="text" id="name" required>
     </div>
 
     <div class="form-row">
-      <label for="phone">電話番号<span class="required"><br></span></label>
-      <input type="tel" id="phone" name="phone"  required>
+      <label for="phone">電話番号</label>
+      <input type="tel" id="phone" required>
     </div>
 
     <div class="form-row">
-      <label for="store">受取店舗<span class="required"><br></span></label>
-      <select id="store" name="store" required>
+      <label for="store">受取店舗</label>
+      <select id="store" required>
         <option value="">選択してください</option>
         <option value="ポケット店">ポケット店</option>
         <option value="アップティ店">アップティ店</option>
@@ -45,50 +185,45 @@
     </div>
 
     <div class="form-row">
-      <label for="pickupDate">受取日<span class="required"><br>*本日より3日後から受付出来ます</span></label>
-      <input type="date" id="pickupDate" name="pickupDate" required>
+      <label for="pickupDate">受取日</label>
+      <input type="date" id="pickupDate" required>
+      <p class="note">※本日より3日後から受付可能</p>
     </div>
 
     <div class="form-row">
-      <label for="pickupTime">受取時間<span class="required"><br>*11時～18時まで30分刻みです</span></label>
-      <select id="pickupTime" name="pickupTime" required></select>
-    </div>
- <a href="https://drive.google.com/file/d/1ozipMuv4eflwsTPUNdYStDJpJDweeLva/view?usp=drive_link" target="_blank" rel="noopener noreferrer">商品パンフレットはこちら</a>
-  <br><label>商品選択<span class="required"><br>*下の追加ボタンを押して、商品を選んで下さい</span></label>  <div class="form-row">
-            <div id="products"></div>
+      <label for="pickupTime">受取時間</label>
+      <select id="pickupTime" required></select>
+      <p class="note">※11:00～18:00（30分刻み）</p>
     </div>
 
+   <a href="https://drive.google.com/file/d/1ozipMuv4eflwsTPUNdYStDJpJDweeLva/view?usp=drive_link" target="_blank" rel="noopener noreferrer">商品パンフレットはこちら</a>
+    
     <div class="form-row">
-      <label></label>
-      <div class="field">
-        <button type="button" id="addProductBtn">＋ 商品を追加</button>
-      </div>
+      <label>商品選択</label>※商品を追加ボタンから選んで下さい
+      <div id="products"></div>
+      <button type="button" id="addProductBtn">＋ 商品を追加</button>
     </div>
 
-    <div class="form-row">
-      <label>合計金額</label>
-      <div><span id="total">0</span> 円＋税</div>
-    </div>
-    <label>お支払いは受取店舗のレジで、現金またはクレジット決済となります</label>
+    <div class="total">合計金額：<span id="total">0</span> 円＋税</div>
+
     <div class="form-row">
       <label for="memo">備考</label>
-      <textarea id="memo" name="memo" placeholder="ご要望などあれば記入して下さい"></textarea>
+      <textarea id="memo" placeholder="ご要望などがあれば記入してください"></textarea>
     </div>
 
-<!-- 送信中モーダル -->
-<div id="loadingModal" class="modal">
-  <div class="modal-content">
+    <div class="form-row">
+      <button type="submit">予約する</button>
+    </div>
+
+    <footer>©️ スーパーヤオスズ総菜部</footer>
+  </form>
+
+  <!-- 送信中モーダル -->
+  <div id="loadingModal">
     <div class="line-spinner"></div>
     <p>送信中です...</p>
   </div>
-</div>
-  
-<label>※上記内容でよろしければ、下の予約するボタンを押して下さい※</label>
-    
- <div class="form-submit">
-    <button type="submit">予約する</button>
-  </div>
-</form>
+
   <script src="script.js"></script>
 </body>
 </html>
