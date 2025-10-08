@@ -22,6 +22,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const addProductBtn = document.getElementById("addProductBtn");
   const pickupTime = document.getElementById("pickupTime");
   const pickupDate = document.getElementById("pickupDate");
+
+  // ← ここでフォーム要素をすべて取得
+  const nameInput = document.getElementById("name");
+  const phoneInput = document.getElementById("phone");
+  const storeInput = document.getElementById("store");
+  const totalEl = document.getElementById("total");
+  const memoInput = document.getElementById("memo");
+
   let userId = "";
 
   /***************
@@ -87,26 +95,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         total += price * parseInt(qty.value);
       }
     });
-    document.getElementById("total").textContent = total;
+    totalEl.textContent = total;
   }
 
   /***************
    * 💬 LIFF 初期化
    ***************/
   try {
-  await liff.init({ liffId: "2007937057-4bzK6wWZ" });
+    await liff.init({ liffId: "2007937057-4bzK6wWZ" });
 
-  if (!liff.isLoggedIn()) {
-    liff.login();
-    return; // ← ログイン直後は再読み込みが必要なので、ここで止める！
+    if (!liff.isLoggedIn()) {
+      liff.login();
+      return; // ログイン直後は再読み込み
+    }
+
+    const profile = await liff.getProfile();
+    userId = profile.userId || "";
+    console.log("取得した userId:", userId);
+  } catch (err) {
+    console.error("LIFF初期化エラー:", err);
   }
-
-  const profile = await liff.getProfile();
-  userId = profile.userId || "";
-  console.log("取得したuserId:", userId);
-} catch (err) {
-  console.error("LIFF初期化エラー:", err);
-}
 
   /***************
    * 📤 フォーム送信処理
@@ -128,14 +136,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const data = {
-      name: name.value,
-      phone: phone.value,
-      store: store.value,
+      name: nameInput.value,
+      phone: phoneInput.value,
+      store: storeInput.value,
       pickupDate: pickupDate.value,
       pickupTime: pickupTime.value,
       products: products.join("\n"),
-      total: total.textContent,
-      memo: memo.value,
+      total: totalEl.textContent,
+      memo: memoInput.value,
       userId
     };
 
@@ -143,36 +151,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     modal.style.display = "flex";
 
     try {
-     const res = await fetch(GAS_URL, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/x-www-form-urlencoded"
-  },
-  body: new URLSearchParams(data)
-});
+      const res = await fetch(GAS_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams(data)
+      });
       const result = await res.json();
       modal.style.display = "none";
 
       if (result.result === "success") {
         alert("ご予約を受け付けました！LINEにも確認メッセージをお送りします。");
-        if (result.result === "success") {
-  alert("ご予約を受け付けました！LINEにも確認メッセージをお送りします。");
 
-  // URLパラメータを丁寧にエンコードして渡す
-  const params = new URLSearchParams({
-    id: result.id,
-    name: data.name,
-    phone: data.phone,
-    store: data.store,
-    pickupDate: data.pickupDate,
-    pickupTime: data.pickupTime,
-    products: data.products,
-    total: data.total,
-    memo: data.memo
-  });
+        // URLパラメータをエンコードして次ページへ渡す
+        const params = new URLSearchParams({
+          id: result.id,
+          name: data.name,
+          phone: data.phone,
+          store: data.store,
+          pickupDate: data.pickupDate,
+          pickupTime: data.pickupTime,
+          products: data.products,
+          total: data.total,
+          memo: data.memo
+        });
 
-  window.location.href = "confirm.html?" + params.toString();
-}
+        window.location.href = "confirm.html?" + params.toString();
       } else {
         alert("エラー: " + result.message);
       }

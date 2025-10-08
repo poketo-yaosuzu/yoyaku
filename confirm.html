@@ -2,147 +2,69 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>予約完了</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: 'Hiragino Kaku Gothic ProN', sans-serif;
-      background: #f9f9f9;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-      margin: 0;
-      padding: 1.5rem 1rem;
-    }
-
-    .complete-card {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 14px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 420px;
-      box-sizing: border-box;
-      text-align: center;
-      animation: fadeIn 0.4s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    h2 {
-      color: #28a745;
-      font-size: 1.4rem;
-      margin-bottom: 0.8rem;
-    }
-
-    p {
-      color: #333;
-      font-size: 0.95rem;
-      line-height: 1.6;
-      margin: 0.3rem 0;
-    }
-
-    .reservation-summary {
-      text-align: left;
-      margin: 1.2rem 0;
-      padding: 0.8rem;
-      list-style: none;
-      border: 1px solid #eee;
-      border-radius: 10px;
-      background: #fcfcfc;
-    }
-
-    .reservation-summary li {
-      margin: 0.4rem 0;
-      font-size: 0.9rem;
-    }
-
-    .reservation-summary b {
-      display: inline-block;
-      width: 5em;
-      color: #444;
-    }
-
-    .btn-home {
-      display: inline-block;
-      width: 100%;
-      padding: 0.8rem 0;
-      font-size: 1rem;
-      background: #28a745;
-      color: white;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      margin-top: 1.2rem;
-      transition: 0.2s;
-    }
-
-    .btn-home:hover {
-      background: #23913f;
-    }
-
-    footer {
-      font-size: 0.8rem;
-      color: #777;
-      text-align: center;
-      margin-top: 1rem;
-    }
-
-    @media (max-height: 600px) {
-      body {
-        align-items: flex-start;
-      }
-    }
-  </style>
+  <title>予約確認</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <div class="complete-card">
-    <h2>🎉 ご予約ありがとうございます！</h2>
-    <p>以下の内容で承りました。</p>
+<body class="p-6 bg-gray-50 text-gray-800">
+  <div class="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-6 text-center">
+    <h2 class="text-xl font-bold mb-4">🎉 ご予約ありがとうございます！</h2>
 
-    <ul class="reservation-summary" id="reservationSummary">
-      <!-- JSで挿入 -->
-    </ul>
+    <div id="reservationDetails" class="text-left space-y-3"></div>
 
-    <p>店舗にてご用意してお待ちしております。</p>
-    <p>変更などありましたら、予約店舗までご連絡ください。</p>
-
-    <button id="closeBtn" class="btn-home">✖ 閉じる</button>
-
-    <footer>©️ スーパーヤオスズ総菜部</footer>
+    <button id="closeBtn" class="mt-6 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+      LINEに戻る
+    </button>
   </div>
 
   <script>
-    // URLパラメータからデータ取得
+    // 📦 URLパラメータを取得
     const params = new URLSearchParams(window.location.search);
-    const summary = document.getElementById("reservationSummary");
 
-    const items = [
-      { label: "お名前", key: "name" },
-      { label: "電話番号", key: "phone" },
-      { label: "受取日", key: "pickupDate" },
-      { label: "受取時間", key: "pickupTime" },
-      { label: "店舗", key: "store" },
-      { label: "商品", key: "products" },
-      { label: "合計金額", key: "total" }
-    ];
+    const name = params.get("name") || "";
+    const phone = params.get("phone") || "";
+    const store = params.get("store") || "";
+    const pickupDate = params.get("pickupDate") || "";
+    const pickupTime = params.get("pickupTime") || "";
+    const products = params.get("products") || "";
+    const total = params.get("total") || "";
+    const memo = params.get("memo") || "";
 
-    items.forEach(item => {
-      const li = document.createElement("li");
-      li.innerHTML = `<b>${item.label}：</b> ${params.get(item.key) || "-"}`;
-      summary.appendChild(li);
-    });
+    // 🗓 日付を「〇年〇月〇日（曜）」に変換
+    function formatJapaneseDate(isoDate) {
+      if (!isoDate) return "";
+      const date = new Date(isoDate + "T00:00:00");
+      const days = ["日", "月", "火", "水", "木", "金", "土"];
+      const y = date.getFullYear();
+      const m = date.getMonth() + 1;
+      const d = date.getDate();
+      const w = days[date.getDay()];
+      return `${y}年${m}月${d}日（${w}）`;
+    }
 
-    // 閉じるボタン（LIFF環境対応）
+    // ⏰ 時間を「〇時〇分」に変換
+    function formatJapaneseTime(time) {
+      if (!time) return "";
+      const [h, m] = time.split(":");
+      return `${parseInt(h)}時${m}分`;
+    }
+
+    // 🧾 HTMLに反映
+    document.getElementById("reservationDetails").innerHTML = `
+      <p><strong>お名前：</strong>${name}</p>
+      <p><strong>電話番号：</strong>${phone}</p>
+      <p><strong>受取店舗：</strong>${store}</p>
+      <p><strong>受取日時：</strong>${formatJapaneseDate(pickupDate)} ${formatJapaneseTime(pickupTime)}</p>
+      <p><strong>ご注文内容：</strong><br>${products.replace(/\n/g, "<br>")}</p>
+      <p><strong>合計金額：</strong>${total}円</p>
+      ${memo ? `<p><strong>備考：</strong>${memo}</p>` : ""}
+    `;
+
+    // ✅ LINEアプリへ戻る
     document.getElementById("closeBtn").addEventListener("click", () => {
-      if (typeof liff !== "undefined") {
+      if (typeof liff !== "undefined" && liff.isInClient()) {
         liff.closeWindow();
       } else {
-        window.close();
+        window.location.href = "https://line.me/";
       }
     });
   </script>
