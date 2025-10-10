@@ -22,23 +22,51 @@ document.addEventListener("DOMContentLoaded", async () => {
   const addProductBtn = document.getElementById("addProductBtn");
   const pickupTime = document.getElementById("pickupTime");
   const pickupDate = document.getElementById("pickupDate");
-
-  // ← ここでフォーム要素をすべて取得
-  const nameInput = document.getElementById("name");
-  const phoneInput = document.getElementById("phone");
-  const storeInput = document.getElementById("store");
-  const totalEl = document.getElementById("total");
-  const memoInput = document.getElementById("memo");
-
   let userId = "";
+
+  /***************
+   * 🗓 定休日データ取得（GASから）
+   ***************/
+  let CLOSED_DAYS = [];
+  let HOLIDAYS = [];
+
+  async function loadClosedDays() {
+    try {
+      const res = await fetch(GAS_URL + "?action=getClosedDays");
+      const data = await res.json();
+      CLOSED_DAYS = data.weekdays || [];
+      HOLIDAYS = data.holidays || [];
+      console.log("取得した定休日:", data);
+    } catch (err) {
+      console.error("定休日データ取得エラー:", err);
+    }
+  }
+
+  // ✅ この位置で await 呼び出し（OK）
+  await loadClosedDays();
 
   /***************
    * 🕓 受取日・時間設定
    ***************/
   const today = new Date();
   today.setDate(today.getDate() + 3);
-  pickupDate.min = today.toISOString().split("T")[0];
 
+  let firstAvailable = new Date(today);
+  while (CLOSED_DAYS.includes(firstAvailable.getDay()) ||
+        HOLIDAYS.includes(firstAvailable.toISOString().split("T")[0])) {
+    firstAvailable.setDate(firstAvailable.getDate() + 1);
+  }
+  pickupDate.min = firstAvailable.toISOString().split("T")[0];
+
+  // 日付選択チェック
+  pickupDate.addEventListener("change", () => {
+    const selected = new Date(pickupDate.value);
+    const iso = pickupDate.value;
+    if (CLOSED_DAYS.includes(selected.getDay()) || HOLIDAYS.includes(iso)) {
+      alert("この日は定休日のため選択できません。別の日をお選びください。");
+      pickupDate.value = "";
+    }
+  });
   for (let h = 11; h <= 18; h++) {
     for (let m of [0, 30]) {
       if (h === 18 && m > 0) continue;
@@ -55,6 +83,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   function addProductRow() {
     const row = document.createElement("div");
     row.className = "product-row";
+    row.style.display = "flex";
+    row.style.alignItems = "center";
+    row.style.gap = "8px";
 
     const sel = document.createElement("select");
     sel.required = true;
@@ -65,10 +96,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     qty.type = "number";
     qty.min = "1";
     qty.value = "1";
+    qty.style.width = "3em"; // 👈 2桁が見える程度に小さく
+    qty.style.textAlign = "center";
 
     const rm = document.createElement("button");
     rm.type = "button";
     rm.textContent = "✖ 削除";
+    rm.style.background = "#ffdddd";
+    rm.style.border = "none";
+    rm.style.borderRadius = "6px";
+    rm.style.padding = "4px 8px";
+    rm.style.cursor = "pointer";
+
     rm.addEventListener("click", () => {
       row.remove();
       updateTotal();
@@ -95,7 +134,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         total += price * parseInt(qty.value);
       }
     });
-    totalEl.textContent = total;
+    document.getElementById("total").textContent = total;
   }
 
   /***************
@@ -106,12 +145,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (!liff.isLoggedIn()) {
       liff.login();
-      return; // ログイン直後は再読み込み
+      return; // ← ログイン直後は再読み込みが必要なので、ここで止める！
     }
 
     const profile = await liff.getProfile();
     userId = profile.userId || "";
-    console.log("取得した userId:", userId);
+    console.log("取得したuserId:", userId);
   } catch (err) {
     console.error("LIFF初期化エラー:", err);
   }
@@ -136,14 +175,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const data = {
-      name: nameInput.value,
-      phone: phoneInput.value,
-      store: storeInput.value,
+      name: document.getElementById("name").value,
+      phone: document.getElementById("phone").value,
+      store: document.getElementById("store").value,
       pickupDate: pickupDate.value,
       pickupTime: pickupTime.value,
       products: products.join("\n"),
-      total: totalEl.textContent,
-      memo: memoInput.value,
+      total: document.getElementById("total").textContent,
+      memo: document.getElementById("memo").value,
       userId
     };
 
@@ -158,13 +197,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         },
         body: new URLSearchParams(data)
       });
+
       const result = await res.json();
       modal.style.display = "none";
 
       if (result.result === "success") {
         alert("ご予約を受け付けました！LINEにも確認メッセージをお送りします。");
 
-        // URLパラメータをエンコードして次ページへ渡す
+        // URLパラメータを丁寧にエンコードして渡す
         const params = new URLSearchParams({
           id: result.id,
           name: data.name,

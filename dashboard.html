@@ -39,77 +39,60 @@
   </table>
 
   <script>
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbzPbS23lntPHdU7SLNCP5GhXCwlCSntiv5mOsJHSJz5cnRafMTUQ1jABE_HCjZC6cgLJw/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzPbS23lntPHdU7SLNCP5GhXCwlCSntiv5mOsJHSJz5cnRafMTUQ1jABE_HCjZC6cgLJw/exec";
 
-  function loadReservations() {
-    fetch(GAS_URL + "?action=getReservations")
-      .then(res => res.json())
-      .then(data => {
-        renderTable(data);
-      })
-      .catch(err => {
-        document.getElementById("reservation-list").innerHTML =
-          "<tr><td colspan='9'>エラー: " + err + "</td></tr>";
-      });
-  }
-
-  function renderTable(data) {
-    const filter = document.getElementById("storeFilter").value;
-    const list = document.getElementById("reservation-list");
-    list.innerHTML = "";
-
-    // 曜日リスト
-    const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
-
-    // 店舗フィルタ & 日付順ソート
-    let filtered = data.filter(r => !filter || r.store === filter);
-    filtered.sort((a, b) => (a.pickupDate + a.pickupTime) > (b.pickupDate + b.pickupTime) ? 1 : -1);
-
-    if (filtered.length === 0) {
-      list.innerHTML = "<tr><td colspan='9'>該当する予約はありません</td></tr>";
-      document.getElementById("salesSummary").textContent = "売上合計: 0";
-      return;
+    function loadReservations() {
+      fetch(GAS_URL + "?action=getReservations")
+        .then(res => res.json())
+        .then(data => {
+          renderTable(data);
+        })
+        .catch(err => {
+          document.getElementById("reservation-list").innerHTML =
+            "<tr><td colspan='9'>エラー: " + err + "</td></tr>";
+        });
     }
 
-    let totalSales = 0;
-    filtered.forEach(r => {
-      totalSales += Number(r.total);
+    function renderTable(data) {
+      const filter = document.getElementById("storeFilter").value;
+      const list = document.getElementById("reservation-list");
+      list.innerHTML = "";
 
-      // ▼ 日付整形処理 ▼
-      let formattedDate = r.pickupDate;
-      try {
-        const d = new Date(r.pickupDate);
-        if (!isNaN(d)) {
-          const y = d.getFullYear();
-          const m = d.getMonth() + 1;
-          const day = d.getDate();
-          const w = weekdays[d.getDay()];
-          formattedDate = `${y}年${m}月${day}日（${w}）`;
-        }
-      } catch (e) {}
+      // 店舗フィルタ & 日付順ソート
+      let filtered = data.filter(r => !filter || r.store === filter);
+      filtered.sort((a, b) => (a.pickupDate + a.pickupTime) > (b.pickupDate + b.pickupTime) ? 1 : -1);
 
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${r.id}</td>
-        <td>${r.name}</td>
-        <td>${r.phone}</td>
-        <td>${r.store}</td>
-        <td>${formattedDate}</td>
-        <td>${r.pickupTime}</td>
-        <td>${(r.products || "").replace(/\n/g, "<br>")}</td>
-        <td>${r.total}</td>
-        <td>${r.memo || ""}</td>
-      `;
-      list.appendChild(tr);
-    });
+      if (filtered.length === 0) {
+        list.innerHTML = "<tr><td colspan='9'>該当する予約はありません</td></tr>";
+        document.getElementById("salesSummary").textContent = "売上合計: 0";
+        return;
+      }
 
-    document.getElementById("salesSummary").textContent =
-      "売上合計: " + totalSales.toLocaleString() + "円";
-  }
+      let totalSales = 0;
+      filtered.forEach(r => {
+        totalSales += Number(r.total);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${r.id}</td>
+          <td>${r.name}</td>
+          <td>${r.phone}</td>
+          <td>${r.store}</td>
+          <td>${r.pickupDate}</td>
+          <td>${r.pickupTime}</td>
+          <td>${(r.products || "").replace(/\n/g, "<br>")}</td>
+          <td>${r.total}</td>
+          <td>${r.memo || ""}</td>
+        `;
+        list.appendChild(tr);
+      });
 
-  document.getElementById("storeFilter").addEventListener("change", loadReservations);
-  loadReservations();
-</script>
+      document.getElementById("salesSummary").textContent =
+        "売上合計: " + totalSales;
+    }
 
+    document.getElementById("storeFilter").addEventListener("change", loadReservations);
+
+    loadReservations();
+  </script>
 </body>
 </html>
