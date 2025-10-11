@@ -14,6 +14,7 @@
       <label>お名前<input type="text" id="name" required></label>
       <label>電話番号<input type="tel" id="phone" required></label>
 
+      
       <label>受取店舗
         <select id="store" required>
           <option value="">選択してください</option>
@@ -37,7 +38,11 @@
     </form>
   </main>
 
-  <div id="loadingModal" class="modal">送信中...</div>
+ <!-- 送信中モーダル -->
+  <div id="loadingModal">
+    <div class="line-spinner"></div>
+    <p>送信中です...</p>
+  </div>
 
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="script.js"></script>
