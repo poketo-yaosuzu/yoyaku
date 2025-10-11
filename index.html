@@ -5,6 +5,8 @@
   <title>ご予約フォーム</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
   <main class="card">
@@ -38,13 +40,14 @@
     </form>
   </main>
 
- <!-- 送信中モーダル -->
-  <div id="loadingModal">
-    <div class="line-spinner"></div>
-    <p>送信中です...</p>
+<!-- 送信中モーダル -->
+  <div id="loadingModal" class="modal"> 
+    <div class="modal-content">
+      <div class="line-spinner"></div> 
+      <p>送信中です...</p> 
+    </div>
   </div>
 
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
