@@ -1,4 +1,4 @@
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwxdpx_6NjyydwqLI_YqoQ-d_n_rW9po8_r8StvpbXRmO40agDXawxC-AuAjpHfKncOPQ/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzPbS23lntPHdU7SLNCP5GhXCwlCSntiv5mOsJHSJz5cnRafMTUQ1jABE_HCjZC6cgLJw/exec";
 
 // 商品リスト
 const PRODUCTS = [
