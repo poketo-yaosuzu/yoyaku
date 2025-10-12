@@ -39,7 +39,7 @@
   </table>
 
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyrVYR14bb_PlMbo-yK0sGAc_hJ0Pvyul0AxnCwGWk1C7zFDIGMnVPaDTjZmrCxPUqkQg/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzPbS23lntPHdU7SLNCP5GhXCwlCSntiv5mOsJHSJz5cnRafMTUQ1jABE_HCjZC6cgLJw/exec";
 
     function loadReservations() {
       fetch(GAS_URL + "?action=getReservations")
@@ -60,7 +60,7 @@
 
       // 店舗フィルタ & 日付順ソート
       let filtered = data.filter(r => !filter || r.store === filter);
-      filtered.sort((a, b) => (a.pickupDateFormatted + a.pickupTimeFormatted) > (b.pickupDateFormatted + b.pickupTimeFormatted) ? 1 : -1);
+      filtered.sort((a, b) => (a.pickupDate + a.pickupTime) > (b.pickupDate + b.pickupTime) ? 1 : -1);
 
       if (filtered.length === 0) {
         list.innerHTML = "<tr><td colspan='9'>該当する予約はありません</td></tr>";
@@ -77,8 +77,8 @@
           <td>${r.name}</td>
           <td>${r.phone}</td>
           <td>${r.store}</td>
-          <td>${r.pickupDateFormatted}</td>
-          <td>${r.pickupTimeFormatted}</td>
+          <td>${r.pickupDate}</td>
+          <td>${r.pickupTime}</td>
           <td>${(r.products || "").replace(/\n/g, "<br>")}</td>
           <td>${r.total}</td>
           <td>${r.memo || ""}</td>
@@ -96,4 +96,3 @@
   </script>
 </body>
 </html>
-

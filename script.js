@@ -58,15 +58,26 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   pickupDate.min = firstAvailable.toISOString().split("T")[0];
 
-  // 日付選択チェック
-  pickupDate.addEventListener("change", () => {
-    const selected = new Date(pickupDate.value);
-    const iso = pickupDate.value;
-    if (CLOSED_DAYS.includes(selected.getDay()) || HOLIDAYS.includes(iso)) {
-      alert("この日は定休日のため選択できません。別の日をお選びください。");
-      pickupDate.value = "";
+  /***************
+ * 🚫 定休日（特定日）を取得して反映
+ ***************/
+try {
+  const res = await fetch(GAS_URL + "?action=getClosedDays");
+  const { holidays } = await res.json();
+  console.log("定休日（特定日）:", holidays);
+
+  pickupDate.addEventListener("input", (e) => {
+    const dateStr = e.target.value;
+    if (holidays.includes(dateStr)) {
+      alert("この日は定休日のため選択できません。");
+      e.target.value = ""; // 選択をクリア
     }
   });
+} catch (err) {
+  console.error("定休日の取得に失敗:", err);
+}
+
+  // 受取時間設定
   for (let h = 11; h <= 18; h++) {
     for (let m of [0, 30]) {
       if (h === 18 && m > 0) continue;
@@ -227,4 +238,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
-
