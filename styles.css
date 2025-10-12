@@ -67,7 +67,7 @@ button:hover {
 
 .product-row button {
   width: auto;
-  background: #fb0a0a;
+  background: red;
   color: white;
   border-radius: 6px;
   padding: 4px 8px;
