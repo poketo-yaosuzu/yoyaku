@@ -74,6 +74,11 @@ button:hover {
   font-size: 14px;
 }
 
+footer {
+  text-align: center;
+  padding: 1px;
+}
+
 /* === モーダル背景 === */
 .modal {
   display: none; /* 最初は非表示 */
