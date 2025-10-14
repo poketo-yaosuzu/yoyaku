@@ -3,12 +3,68 @@
 <head>
   <meta charset="UTF-8">
   <title>予約ダッシュボード</title>
-  <link rel="stylesheet" href="dashboard.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: "Segoe UI", "メイリオ", sans-serif;
+      padding: 20px;
+      background: #f9fafb;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    select {
+      padding: 5px 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #ddd;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f3f4f6;
+    }
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+    .summary {
+      margin: 10px 0;
+      font-weight: bold;
+      color: #222;
+    }
+    .createdAt {
+      font-size: 0.9em;
+      color: #666;
+    }
+    #chartContainer {
+      margin-top: 40px;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    #salesChart {
+      width: 100%;
+      height: 300px;
+    }
+  </style>
 </head>
 <body>
   <h2>📊 予約ダッシュボード</h2>
 
-  <label>店舗で絞り込み:
+  <label>店舗で絞り込み：
     <select id="storeFilter">
       <option value="">全店舗</option>
       <option value="ポケット店">ポケット店</option>
@@ -17,7 +73,7 @@
     </select>
   </label>
 
-  <div id="salesSummary" class="summary">売上合計: 0</div>
+  <div id="salesSummary" class="summary">売上合計: 0 円</div>
 
   <table>
     <thead>
@@ -31,40 +87,48 @@
         <th>商品</th>
         <th>合計金額</th>
         <th>備考</th>
+        <th>受信日時</th>
       </tr>
     </thead>
     <tbody id="reservation-list">
-      <tr><td colspan="9">読み込み中...</td></tr>
+      <tr><td colspan="10">読み込み中...</td></tr>
     </tbody>
   </table>
 
-  <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzPbS23lntPHdU7SLNCP5GhXCwlCSntiv5mOsJHSJz5cnRafMTUQ1jABE_HCjZC6cgLJw/exec";
+  <div id="chartContainer">
+    <h3>📅 日別売上推移グラフ</h3>
+    <canvas id="salesChart"></canvas>
+  </div>
 
+  <script>
+    let chartInstance;
+
+    // 📦 データ取得
     function loadReservations() {
-      fetch(GAS_URL + "?action=getReservations")
+      fetch("?action=getReservations")
         .then(res => res.json())
         .then(data => {
           renderTable(data);
+          renderChart(data);
         })
         .catch(err => {
           document.getElementById("reservation-list").innerHTML =
-            "<tr><td colspan='9'>エラー: " + err + "</td></tr>";
+            "<tr><td colspan='10'>エラー: " + err.message + "</td></tr>";
         });
     }
 
+    // 📋 テーブル描画
     function renderTable(data) {
       const filter = document.getElementById("storeFilter").value;
       const list = document.getElementById("reservation-list");
       list.innerHTML = "";
 
-      // 店舗フィルタ & 日付順ソート
       let filtered = data.filter(r => !filter || r.store === filter);
-      filtered.sort((a, b) => (a.pickupDate + a.pickupTime) > (b.pickupDate + b.pickupTime) ? 1 : -1);
+      filtered.sort((a, b) => a.pickupDate.localeCompare(b.pickupDate));
 
       if (filtered.length === 0) {
-        list.innerHTML = "<tr><td colspan='9'>該当する予約はありません</td></tr>";
-        document.getElementById("salesSummary").textContent = "売上合計: 0";
+        list.innerHTML = "<tr><td colspan='10'>該当する予約はありません</td></tr>";
+        document.getElementById("salesSummary").textContent = "売上合計: 0 円";
         return;
       }
 
@@ -82,16 +146,67 @@
           <td>${(r.products || "").replace(/\n/g, "<br>")}</td>
           <td>${r.total}</td>
           <td>${r.memo || ""}</td>
+          <td class="createdAt">${r.createdAt}</td>
         `;
         list.appendChild(tr);
       });
 
       document.getElementById("salesSummary").textContent =
-        "売上合計: " + totalSales;
+        "売上合計: " + totalSales.toLocaleString() + " 円";
+    }
+
+    // 📈 グラフ描画
+    function renderChart(data) {
+      const filter = document.getElementById("storeFilter").value;
+      let filtered = data.filter(r => !filter || r.store === filter);
+
+      // 日別に集計
+      const salesByDate = {};
+      filtered.forEach(r => {
+        const date = r.pickupDate;
+        if (!salesByDate[date]) salesByDate[date] = 0;
+        salesByDate[date] += Number(r.total);
+      });
+
+      const labels = Object.keys(salesByDate).sort();
+      const totals = labels.map(date => salesByDate[date]);
+
+      const ctx = document.getElementById("salesChart").getContext("2d");
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [{
+            label: "日別売上（円）",
+            data: totals,
+            borderColor: "#4f46e5",
+            backgroundColor: "rgba(79,70,229,0.1)",
+            tension: 0.3,
+            fill: true,
+            pointRadius: 5,
+            pointBackgroundColor: "#4f46e5"
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: context => "¥" + context.formattedValue
+              }
+            }
+          }
+        }
+      });
     }
 
     document.getElementById("storeFilter").addEventListener("change", loadReservations);
-
     loadReservations();
   </script>
 </body>
