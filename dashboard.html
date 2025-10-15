@@ -3,77 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <title>予約ダッシュボード</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      font-family: "Segoe UI", "メイリオ", sans-serif;
-      padding: 20px;
-      background: #f9fafb;
-    }
-    h2 {
-      text-align: center;
-      color: #333;
-      margin-bottom: 20px;
-    }
-    select {
-      padding: 5px 10px;
-      margin-bottom: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    th, td {
-      padding: 8px;
-      border: 1px solid #ddd;
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      background: #f3f4f6;
-    }
-    tr:nth-child(even) {
-      background: #f9f9f9;
-    }
-    .summary {
-      margin: 10px 0;
-      font-weight: bold;
-      color: #222;
-    }
-    .createdAt {
-      font-size: 0.9em;
-      color: #666;
-    }
-    #chartContainer {
-      margin-top: 40px;
-      padding: 20px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    #salesChart {
-      width: 100%;
-      height: 300px;
-    }
-  </style>
+  <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
   <h2>📊 予約ダッシュボード</h2>
 
-  <label>店舗で絞り込み：
-    <select id="storeFilter">
-      <option value="">全店舗</option>
-      <option value="ポケット店">ポケット店</option>
-      <option value="アップティ店">アップティ店</option>
-      <option value="キララ店">キララ店</option>
-    </select>
-  </label>
+  <div style="margin-bottom: 10px;">
+    <label>店舗で絞り込み:
+      <select id="storeFilter">
+        <option value="">全店舗</option>
+        <option value="ポケット店">ポケット店</option>
+        <option value="アップティ店">アップティ店</option>
+        <option value="キララ店">キララ店</option>
+      </select>
+    </label>
 
-  <div id="salesSummary" class="summary">売上合計: 0 円</div>
+    <label style="margin-left: 20px;">期間で絞り込み:
+      <select id="dateFilter">
+        <option value="all">全期間</option>
+        <option value="today">今日</option>
+        <option value="yesterday">昨日</option>
+        <option value="week">今週</option>
+      </select>
+    </label>
+  </div>
+
+  <div id="salesSummary" class="summary">売上合計: 0円</div>
 
   <table>
     <thead>
@@ -95,40 +50,56 @@
     </tbody>
   </table>
 
-  <div id="chartContainer">
-    <h3>📅 日別売上推移グラフ</h3>
-    <canvas id="salesChart"></canvas>
-  </div>
-
   <script>
-    let chartInstance;
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbydiE4I-Q6t58xEbnbxEvlJMeHsqKooDvGu0AXxIlq9Iuz5uVn5gWqpc7aqrOGwTixuwg/exec";
 
-    // 📦 データ取得
-    function loadReservations() {
-      fetch("?action=getReservations")
-        .then(res => res.json())
-        .then(data => {
-          renderTable(data);
-          renderChart(data);
-        })
-        .catch(err => {
-          document.getElementById("reservation-list").innerHTML =
-            "<tr><td colspan='10'>エラー: " + err.message + "</td></tr>";
-        });
+    async function loadReservations() {
+      try {
+        const res = await fetch(GAS_URL + "?action=getReservations");
+        const data = await res.json();
+        renderTable(data);
+      } catch (err) {
+        document.getElementById("reservation-list").innerHTML =
+          "<tr><td colspan='10'>エラー: " + err + "</td></tr>";
+      }
     }
 
-    // 📋 テーブル描画
     function renderTable(data) {
-      const filter = document.getElementById("storeFilter").value;
+      const storeFilter = document.getElementById("storeFilter").value;
+      const dateFilter = document.getElementById("dateFilter").value;
       const list = document.getElementById("reservation-list");
       list.innerHTML = "";
 
-      let filtered = data.filter(r => !filter || r.store === filter);
-      filtered.sort((a, b) => a.pickupDate.localeCompare(b.pickupDate));
+      // ✅ 店舗フィルタ
+      let filtered = data.filter(r => !storeFilter || r.store === storeFilter);
+
+      // ✅ 日付フィルタ
+      const today = new Date();
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - today.getDay() + 1); // 月曜始まり
+
+      filtered = filtered.filter(r => {
+        const created = new Date(r.createdAt);
+        switch (dateFilter) {
+          case "today":
+            return created.toDateString() === today.toDateString();
+          case "yesterday":
+            const yesterday = new Date(today);
+            yesterday.setDate(today.getDate() - 1);
+            return created.toDateString() === yesterday.toDateString();
+          case "week":
+            return created >= startOfWeek && created <= today;
+          default:
+            return true;
+        }
+      });
+
+      // ✅ 受信日時（createdAt）で降順ソート
+      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
       if (filtered.length === 0) {
         list.innerHTML = "<tr><td colspan='10'>該当する予約はありません</td></tr>";
-        document.getElementById("salesSummary").textContent = "売上合計: 0 円";
+        document.getElementById("salesSummary").textContent = "売上合計: 0円";
         return;
       }
 
@@ -138,75 +109,26 @@
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${r.id}</td>
-          <td>${r.name}</td>
+          <td>${r.name}様</td>
           <td>${r.phone}</td>
           <td>${r.store}</td>
-          <td>${r.pickupDate}</td>
-          <td>${r.pickupTime}</td>
+          <td>${r.pickupDateFormatted}</td>
+          <td>${r.pickupTimeFormatted}</td>
           <td>${(r.products || "").replace(/\n/g, "<br>")}</td>
-          <td>${r.total}</td>
+          <td>${r.total}円</td>
           <td>${r.memo || ""}</td>
-          <td class="createdAt">${r.createdAt}</td>
+          <td>${r.createdAt}</td>
         `;
         list.appendChild(tr);
       });
 
       document.getElementById("salesSummary").textContent =
-        "売上合計: " + totalSales.toLocaleString() + " 円";
-    }
-
-    // 📈 グラフ描画
-    function renderChart(data) {
-      const filter = document.getElementById("storeFilter").value;
-      let filtered = data.filter(r => !filter || r.store === filter);
-
-      // 日別に集計
-      const salesByDate = {};
-      filtered.forEach(r => {
-        const date = r.pickupDate;
-        if (!salesByDate[date]) salesByDate[date] = 0;
-        salesByDate[date] += Number(r.total);
-      });
-
-      const labels = Object.keys(salesByDate).sort();
-      const totals = labels.map(date => salesByDate[date]);
-
-      const ctx = document.getElementById("salesChart").getContext("2d");
-      if (chartInstance) chartInstance.destroy();
-
-      chartInstance = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels,
-          datasets: [{
-            label: "日別売上（円）",
-            data: totals,
-            borderColor: "#4f46e5",
-            backgroundColor: "rgba(79,70,229,0.1)",
-            tension: 0.3,
-            fill: true,
-            pointRadius: 5,
-            pointBackgroundColor: "#4f46e5"
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: { beginAtZero: true }
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: context => "¥" + context.formattedValue
-              }
-            }
-          }
-        }
-      });
+        "売上合計: " + totalSales + "円";
     }
 
     document.getElementById("storeFilter").addEventListener("change", loadReservations);
+    document.getElementById("dateFilter").addEventListener("change", loadReservations);
+
     loadReservations();
   </script>
 </body>
