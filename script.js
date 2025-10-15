@@ -113,7 +113,7 @@ try {
     const rm = document.createElement("button");
     rm.type = "button";
     rm.textContent = "✖ 削除";
-    rm.style.background = "#ffdddd";
+    rm.style.background = "#f80101";
     rm.style.border = "none";
     rm.style.borderRadius = "6px";
     rm.style.padding = "4px 8px";
@@ -151,27 +151,37 @@ try {
   /***************
    * 💬 LIFF 初期化
    ***************/
-  try {
-    await liff.init({ liffId: "2007937057-4bzK6wWZ" });
+try {
+  await liff.init({ liffId: "2007937057-4bzK6wWZ" });
 
-    if (!liff.isLoggedIn()) {
-      liff.login();
-      return; // ← ログイン直後は再読み込みが必要なので、ここで止める！
-    }
-
-    const profile = await liff.getProfile();
-    userId = profile.userId || "";
-    console.log("取得したuserId:", userId);
-  } catch (err) {
-    console.error("LIFF初期化エラー:", err);
+  if (!liff.isLoggedIn()) {
+    liff.login();
+    return; // ← ログイン直後は再読み込みが必要なので、ここで止める！
   }
+
+  const profile = await liff.getProfile();
+  userId = profile.userId || "";
+  console.log("取得したuserId:", userId);
+
+  if (!userId) {
+    alert("LINEユーザーIDが取得できませんでした。LINEアプリから開いてください。");
+  }
+} catch (err) {
+  console.error("LIFF初期化エラー:", err);
+}
 
   /***************
    * 📤 フォーム送信処理
    ***************/
-  document.getElementById("reservationForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+document.getElementById("reservationForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
 
+  // 🧩 LINE連携チェック
+  if (!userId) {
+    alert("LINEログイン情報が確認できません。LINEアプリから再度開いてください。");
+    return;
+  }
+  
     const rows = productsDiv.querySelectorAll(".product-row");
     const products = [];
     rows.forEach(row => {
