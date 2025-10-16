@@ -3,12 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <title>予約ダッシュボード</title>
-  <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
-  <h2>📊 予約ダッシュボード</h2>
+  <h2>
+    📊 予約ダッシュボード <span id="todayDate"></span>
+  </h2>
 
-  <div style="margin-bottom: 10px;">
+  <div class="filter-area" style="margin-bottom: 10px;">
     <label>店舗で絞り込み:
       <select id="storeFilter">
         <option value="">全店舗</option>
@@ -18,14 +20,19 @@
       </select>
     </label>
 
-    <label style="margin-left: 20px;">期間で絞り込み:
-      <select id="dateFilter">
-        <option value="all">全期間</option>
-        <option value="today">今日</option>
-        <option value="yesterday">昨日</option>
-        <option value="week">今週</option>
-      </select>
-    </label>
+    <span class="filter-buttons">
+      <button data-filter="tomorrow">明日</button>
+      <button data-filter="today" class="active">今日</button>
+      <button data-filter="week">今週</button>
+      <button data-filter="month">今月</button>
+      <button data-filter="all">全期間</button>
+    </span>
+
+    <div class="calendar-input">
+      <label for="pickupDateInput">受取日指定:</label>
+      <input type="date" id="pickupDateInput">
+      <button id="clearDateBtn">クリア</button>
+    </div>
   </div>
 
   <div id="salesSummary" class="summary">売上合計: 0円</div>
@@ -50,10 +57,22 @@
     </tbody>
   </table>
 
+  <!-- ローディングモーダル -->
+  <div id="loadingModal" class="loading-modal">
+    <div class="loading-content">読み込み中...</div>
+  </div>
+
   <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbydiE4I-Q6t58xEbnbxEvlJMeHsqKooDvGu0AXxIlq9Iuz5uVn5gWqpc7aqrOGwTixuwg/exec";
+    let currentDateFilter = "today";
+    let customDate = null; // ✅ 任意日付を保持
+
+    function showLoading(show) {
+      document.getElementById("loadingModal").style.display = show ? "flex" : "none";
+    }
 
     async function loadReservations() {
+      showLoading(true);
       try {
         const res = await fetch(GAS_URL + "?action=getReservations");
         const data = await res.json();
@@ -61,41 +80,53 @@
       } catch (err) {
         document.getElementById("reservation-list").innerHTML =
           "<tr><td colspan='10'>エラー: " + err + "</td></tr>";
+      } finally {
+        showLoading(false);
       }
     }
 
     function renderTable(data) {
       const storeFilter = document.getElementById("storeFilter").value;
-      const dateFilter = document.getElementById("dateFilter").value;
       const list = document.getElementById("reservation-list");
       list.innerHTML = "";
 
-      // ✅ 店舗フィルタ
       let filtered = data.filter(r => !storeFilter || r.store === storeFilter);
 
-      // ✅ 日付フィルタ
       const today = new Date();
       const startOfWeek = new Date(today);
-      startOfWeek.setDate(today.getDate() - today.getDay() + 1); // 月曜始まり
+      startOfWeek.setDate(today.getDate() - today.getDay() + 1);
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
       filtered = filtered.filter(r => {
-        const created = new Date(r.createdAt);
-        switch (dateFilter) {
+        if (!r.pickupDateFormatted) return false;
+        const pickup = new Date(r.pickupDateFormatted.replace(/-/g, "/"));
+
+        // ✅ カレンダーで日付指定がある場合はそれを優先
+        if (customDate) {
+          return pickup.toDateString() === customDate.toDateString();
+        }
+
+        // ✅ 通常プリセットの判定
+        switch (currentDateFilter) {
+          case "tomorrow":
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            return pickup.toDateString() === tomorrow.toDateString();
           case "today":
-            return created.toDateString() === today.toDateString();
-          case "yesterday":
-            const yesterday = new Date(today);
-            yesterday.setDate(today.getDate() - 1);
-            return created.toDateString() === yesterday.toDateString();
+            return pickup.toDateString() === today.toDateString();
           case "week":
-            return created >= startOfWeek && created <= today;
+            return pickup >= startOfWeek && pickup <= today;
+          case "month":
+            return pickup >= startOfMonth && pickup <= today;
           default:
             return true;
         }
       });
 
-      // ✅ 受信日時（createdAt）で降順ソート
-      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      // ✅ 受取日降順ソート
+      filtered.sort((a, b) =>
+        new Date(b.pickupDateFormatted) - new Date(a.pickupDateFormatted)
+      );
 
       if (filtered.length === 0) {
         list.innerHTML = "<tr><td colspan='10'>該当する予約はありません</td></tr>";
@@ -115,7 +146,7 @@
           <td>${r.pickupDateFormatted}</td>
           <td>${r.pickupTimeFormatted}</td>
           <td>${(r.products || "").replace(/\n/g, "<br>")}</td>
-          <td>${r.total}円</td>
+          <td>${Number(r.total).toLocaleString()}円</td>
           <td>${r.memo || ""}</td>
           <td>${r.createdAt}</td>
         `;
@@ -123,11 +154,57 @@
       });
 
       document.getElementById("salesSummary").textContent =
-        "売上合計: " + totalSales + "円";
+        "売上合計: " + totalSales.toLocaleString() + "円";
     }
 
+    // ✅ 店舗変更時
     document.getElementById("storeFilter").addEventListener("change", loadReservations);
-    document.getElementById("dateFilter").addEventListener("change", loadReservations);
+
+    // ✅ プリセットボタン
+    document.querySelectorAll(".filter-buttons button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".filter-buttons button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentDateFilter = btn.dataset.filter;
+        customDate = null; // カスタム日付をリセット
+        document.getElementById("pickupDateInput").value = "";
+        loadReservations();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    });
+
+    // ✅ 今日の日付をタイトル横に表示
+function updateTodayDate() {
+  const now = new Date();
+  const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+  const formatted = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日（${weekdays[now.getDay()]}）`;
+  document.getElementById("todayDate").textContent = formatted;
+}
+
+updateTodayDate();
+
+    
+    // ✅ カレンダー入力
+    document.getElementById("pickupDateInput").addEventListener("change", e => {
+      const val = e.target.value;
+      if (val) {
+        customDate = new Date(val.replace(/-/g, "/"));
+        // ボタンのアクティブを解除
+        document.querySelectorAll(".filter-buttons button").forEach(b => b.classList.remove("active"));
+      } else {
+        customDate = null;
+      }
+      loadReservations();
+    });
+
+    // ✅ クリアボタン
+    document.getElementById("clearDateBtn").addEventListener("click", () => {
+      customDate = null;
+      document.getElementById("pickupDateInput").value = "";
+      document.querySelector('[data-filter="today"]').classList.add("active");
+      currentDateFilter = "today";
+      loadReservations();
+    });
 
     loadReservations();
   </script>
