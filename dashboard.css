@@ -21,72 +21,19 @@ tbody tr:hover { background: #fcfcff; }
   .filters { gap: 10px; }
 }
     
-    h2 { margin-bottom: 10px; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 6px 8px;
-      text-align: left;
-      font-size: 14px;
-    }
-    th { background: #f0f0f0; }
-    .summary {
-      margin: 10px 0;
-      font-weight: bold;
-    }
-    .filter-area {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .filter-buttons {
-      display: inline-flex;
-      gap: 8px;
-      margin-left: 10px;
-    }
-    .filter-buttons button {
-      background: #e6e6e6;
-      border: none;
-      border-radius: 5px;
-      padding: 6px 10px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .filter-buttons button.active {
-      background: #007bff;
-      color: white;
-    }
-    .filter-buttons button:hover {
-      background: #007bff;
-      color: white;
-    }
-    .calendar-input {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      margin-left: 15px;
-    }
-
-    /* モーダル */
-    .loading-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.4);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-    .loading-content {
-      background: white;
-      padding: 20px 40px;
-      border-radius: 10px;
-      font-size: 1.2em;
-      font-weight: bold;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    }
+ body{font-family:"Segoe UI","メイリオ",sans-serif;margin:20px;background:#fafafa;color:#333;}
+h2{display:flex;align-items:center;gap:8px;}
+.filter-info{background:#f9f9f9;padding:8px 12px;border-radius:6px;border-left:4px solid #0078d4;font-size:14px;margin-bottom:10px;}
+.filter-bar{display:flex;flex-wrap:wrap;align-items:center;gap:15px;margin-bottom:15px;}
+.filter-bar label{margin-right:5px;}
+.preset-buttons button{background:#eee;border:1px solid #ccc;padding:5px 10px;border-radius:5px;cursor:pointer;transition:0.2s;}
+.preset-buttons button.active{background:#0078d4;color:white;}
+.preset-buttons button:hover{background:#0078d4;color:white;}
+.summary{font-weight:bold;margin-bottom:10px;}
+table{width:100%;border-collapse:collapse;background:white;}
+th,td{padding:8px;border:1px solid #ccc;text-align:center;}
+th{background:#f1f1f1;}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);justify-content:center;align-items:center;z-index:999;}
+.modal-content{background:white;padding:20px 30px;border-radius:10px;text-align:center;}
+.spinner{width:40px;height:40px;margin:auto;border:5px solid #ccc;border-top:5px solid #0078d4;border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
