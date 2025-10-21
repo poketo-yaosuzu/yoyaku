@@ -71,12 +71,14 @@
     <p>ご変更がある場合は直接店舗までご連絡ください。</p>
 
     <button id="closeBtn" class="btn">✖ 閉じる</button>
-     <footer><p>©️ スーパーヤオスズ</p></footer>
+    <footer><p>©️ スーパーヤオスズ</p></footer>
   </div>
+
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script>
     const params = new URLSearchParams(window.location.search);
     const summaryList = document.getElementById("summaryList");
+    let liffId = "";
 
     const fields = [
       { label: "予約番号", key: "id" },
@@ -94,16 +96,38 @@
       const li = document.createElement("li");
       let value = params.get(f.key) || "-";
 
-      // 改行を整形
+      // お名前に「様」を付与
+      if (f.key === "name" && value !== "-") value += " 様";
+
       value = value.replace(/\n/g, "<br>");
       li.innerHTML = `<b>${f.label}：</b><br>${value}`;
       summaryList.appendChild(li);
     });
 
-    // LIFFで閉じるボタンを処理
+    // GAS から LIFF ID を取得
+    async function loadLiffId() {
+      try {
+        const res = await fetch("https://script.google.com/macros/s/xxxxx/exec?action=getLiffId");
+        const data = await res.json();
+        liffId = data.liffId || "";
+        console.log("取得したLIFF ID:", liffId);
+      } catch (err) {
+        console.error("LIFF ID取得エラー:", err);
+      }
+    }
+
+    loadLiffId();
+
+    // 閉じるボタン処理
     document.getElementById("closeBtn").addEventListener("click", async () => {
       try {
-        await liff.init({ liffId: "2007937057-4bzK6wWZ" });
+        if (!liffId) {
+          alert("LIFF ID が取得できません。手動で閉じてください。");
+          return;
+        }
+
+        await liff.init({ liffId });
+
         if (liff.isInClient()) {
           liff.closeWindow();
         } else {
@@ -116,4 +140,3 @@
   </script>
 </body>
 </html>
-
