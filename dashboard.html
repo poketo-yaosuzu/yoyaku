@@ -62,11 +62,10 @@
       </tr>
     </thead>
     <tbody id="reservation-list">
-      <tr><td colspan="10">読み込み中...</td></tr>
+      <tr><td colspan='10'>読み込み中...</td></tr>
     </tbody>
   </table>
 
-  <!-- モーダル -->
   <div id="loadingModal" class="modal">
     <div class="modal-content">
       <div class="spinner"></div>
@@ -78,30 +77,18 @@
     const GAS_URL = "https://script.google.com/macros/s/AKfycbydiE4I-Q6t58xEbnbxEvlJMeHsqKooDvGu0AXxIlq9Iuz5uVn5gWqpc7aqrOGwTixuwg/exec";
     let currentPreset = "all";
 
-    // 今日の日付表示
     function updateTodayDate() {
       const now = new Date();
       const weekdays = ["日","月","火","水","木","金","土"];
-      const formatted = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日（${weekdays[now.getDay()]}）`;
-      document.getElementById("todayDate").textContent = formatted;
+      document.getElementById("todayDate").textContent =
+        `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日（${weekdays[now.getDay()]}）`;
     }
     updateTodayDate();
 
-    function formatPickupTime(timeStr) {
-  if (!timeStr) return "";
-  const [hour, minute] = timeStr.split(":");
-  // 0埋めして hh時mm分 に変換
-  const hh = Number(hour);
-  const mm = minute.padStart(2,"0");
-  return `${hh}時${mm}分`;
-}
-
-    
-    // モーダル制御
     const showModal = () => document.getElementById("loadingModal").style.display = "flex";
     const hideModal = () => document.getElementById("loadingModal").style.display = "none";
 
-    // 🔹日本語日付を正確にDate型に変換
+    // 日本語日付 → Date型
     function parseJapaneseDate(str) {
       if (!str) return null;
       const m = str.match(/(\d{4})年(\d{2})月(\d{2})日/);
@@ -122,7 +109,6 @@
       return d;
     }
 
-    // 🔹プリセット範囲を返す
     function getPickupRangeForPreset(preset) {
       const today = new Date();
       const startToday = new Date(today); startToday.setHours(0,0,0,0);
@@ -131,146 +117,127 @@
       switch(preset) {
         case "tomorrow": {
           const t = new Date(startToday);
-          t.setDate(t.getDate() + 1);
+          t.setDate(t.getDate()+1);
           return { start: parseDateStart(t.toISOString().slice(0,10)), end: parseDateEnd(t.toISOString().slice(0,10)) };
         }
         case "today": return { start: startToday, end: endToday };
         case "week": {
           const day = today.getDay();
-          const diffToMon = (day === 0) ? -6 : 1 - day;
-          const start = new Date(today);
-          start.setDate(today.getDate() + diffToMon);
-          start.setHours(0,0,0,0);
-          const end = new Date(start);
-          end.setDate(start.getDate() + 6);
-          end.setHours(23,59,59,999);
+          const diffToMon = (day===0)? -6 : 1-day;
+          const start = new Date(today); start.setDate(today.getDate()+diffToMon); start.setHours(0,0,0,0);
+          const end = new Date(start); end.setDate(start.getDate()+6); end.setHours(23,59,59,999);
           return { start, end };
         }
         case "month": {
-          const start = new Date(today.getFullYear(), today.getMonth(), 1);
-          start.setHours(0,0,0,0);
-          const end = new Date(today.getFullYear(), today.getMonth()+1, 0);
-          end.setHours(23,59,59,999);
+          const start = new Date(today.getFullYear(), today.getMonth(), 1); start.setHours(0,0,0,0);
+          const end = new Date(today.getFullYear(), today.getMonth()+1, 0); end.setHours(23,59,59,999);
           return { start, end };
         }
-        default: return { start: null, end: null };
+        default: return { start:null, end:null };
       }
     }
 
-    // 🔹テーブル描画
-    function renderTable(data) {
+    // 受取時間を hh時mm分 形式に変換
+    function formatPickupTime(timeStr){
+      if(!timeStr) return "";
+      const [h,m] = timeStr.split(":");
+      return `${Number(h)}時${m.padStart(2,"0")}分`;
+    }
+
+    function renderTable(data){
       const storeFilter = document.getElementById("storeFilter").value;
       const startDateInput = document.getElementById("pickupStart").value;
       const endDateInput = document.getElementById("pickupEnd").value;
       const list = document.getElementById("reservation-list");
       list.innerHTML = "";
 
-      let filtered = data.filter(r => !storeFilter || r.store === storeFilter);
-
-      // ✅ pickupDateFormatted → Date に変換できるよう修正
-      filtered = filtered.filter(r => r.pickupDateFormatted && parseJapaneseDate(r.pickupDateFormatted));
+      let filtered = data.filter(r=>!storeFilter || r.store===storeFilter);
+      filtered = filtered.filter(r=>r.pickupDateFormatted && parseJapaneseDate(r.pickupDateFormatted));
 
       let rangeStart = null, rangeEnd = null;
-      if (startDateInput || endDateInput) {
+      if(startDateInput || endDateInput){
         rangeStart = parseDateStart(startDateInput);
         rangeEnd = parseDateEnd(endDateInput);
-      } else {
+      }else{
         const presetRange = getPickupRangeForPreset(currentPreset);
-        rangeStart = presetRange.start;
-        rangeEnd = presetRange.end;
+        rangeStart = presetRange.start; rangeEnd = presetRange.end;
       }
 
-      if (rangeStart || rangeEnd) {
-        filtered = filtered.filter(r => {
+      if(rangeStart || rangeEnd){
+        filtered = filtered.filter(r=>{
           const pickupDate = parseJapaneseDate(r.pickupDateFormatted);
-          if (!pickupDate) return false;
-          pickupDate.setHours(12); // タイムゾーン誤差防止
-          if (rangeStart && pickupDate < rangeStart) return false;
-          if (rangeEnd && pickupDate > rangeEnd) return false;
+          if(!pickupDate) return false;
+          pickupDate.setHours(12);
+          if(rangeStart && pickupDate<rangeStart) return false;
+          if(rangeEnd && pickupDate>rangeEnd) return false;
           return true;
         });
       }
 
-      // 現在：降順（新しい日付が上）
-      //filtered.sort((a,b) => parseJapaneseDate(b.pickupDateFormatted) - parseJapaneseDate(a.pickupDateFormatted));
-      
-      // 修正：昇順（受取日の早い順）
-      filtered.sort((a,b) => parseJapaneseDate(a.pickupDateFormatted) - parseJapaneseDate(b.pickupDateFormatted));
-
-
+      // 🔹 受取日昇順（早い順）
+      filtered.sort((a,b)=>parseJapaneseDate(a.pickupDateFormatted)-parseJapaneseDate(b.pickupDateFormatted));
 
       const presetLabelMap = { "tomorrow":"明日", "today":"今日", "week":"今週", "month":"今月", "all":"全期間" };
       const presetLabel = presetLabelMap[currentPreset] || "全期間";
       const storeLabel = storeFilter || "全店舗";
-      const dateLabel = (startDateInput || endDateInput)
-        ? `${startDateInput || "指定なし"}〜${endDateInput || "指定なし"}`
-        : (rangeStart || rangeEnd)
-          ? `${(rangeStart ? rangeStart.toISOString().slice(0,10) : "指定なし")}〜${(rangeEnd ? rangeEnd.toISOString().slice(0,10) : "指定なし")}`
+      const dateLabel = (startDateInput||endDateInput)
+        ? `${startDateInput||"指定なし"}〜${endDateInput||"指定なし"}`
+        : (rangeStart||rangeEnd)
+          ? `${rangeStart?rangeStart.toISOString().slice(0,10):"指定なし"}〜${rangeEnd?rangeEnd.toISOString().slice(0,10):"指定なし"}`
           : "全て";
 
       document.getElementById("currentFilterInfo").innerHTML =
         `🔎 表示条件：<strong>${storeLabel}</strong>｜<strong>${presetLabel}</strong>｜受取日 <strong>${dateLabel}</strong>`;
 
-      let totalSales = 0;
-      if (filtered.length === 0) {
-        list.innerHTML = "<tr><td colspan='10'>該当する予約はありません</td></tr>";
-        document.getElementById("salesSummary").textContent = "売上合計: 0円";
+      let totalSales=0;
+      if(filtered.length===0){
+        list.innerHTML="<tr><td colspan='10'>該当する予約はありません</td></tr>";
+        document.getElementById("salesSummary").textContent="売上合計: 0円";
         return;
       }
 
-      filtered.forEach(r => {
-        totalSales += Number(r.total || 0);
+      filtered.forEach(r=>{
+        totalSales+=Number(r.total||0);
         const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${r.id || ""}</td>
-          <td>${r.name ? r.name + "様" : ""}</td>
-          <td>${r.phone || ""}</td>
-          <td>${r.store || ""}</td>
-          <td>${r.pickupDateFormatted || ""}</td>
-          <td>${formatPickupTime(r.pickupTime) || ""}</td>
-          <td>${(r.products || "").replace(/\n/g,"<br>")}</td>
-          <td>${Number(r.total || 0).toLocaleString()}円</td>
-          <td>${r.memo || ""}</td>
-          <td>${r.createdAt || ""}</td>
+        tr.innerHTML=`
+          <td>${r.id||""}</td>
+          <td>${r.name?r.name+"様":""}</td>
+          <td>${r.phone||""}</td>
+          <td>${r.store||""}</td>
+          <td>${r.pickupDateFormatted||""}</td>
+          <td>${formatPickupTime(r.pickupTime)||""}</td>
+          <td>${(r.products||"").replace(/\n/g,"<br>")}</td>
+          <td>${Number(r.total||0).toLocaleString()}円</td>
+          <td>${r.memo||""}</td>
+          <td>${r.createdAt||""}</td>
         `;
         list.appendChild(tr);
       });
-
-      document.getElementById("salesSummary").textContent =
-        "売上合計: " + totalSales.toLocaleString() + "円";
+      document.getElementById("salesSummary").textContent="売上合計: "+totalSales.toLocaleString()+"円";
     }
 
-    // 🔹データ取得
-    async function loadReservations() {
+    async function loadReservations(){
       showModal();
-      try {
-        const res = await fetch(GAS_URL + "?action=getReservations");
-        const data = await res.json();
+      try{
+        const res=await fetch(GAS_URL+"?action=getReservations");
+        const data=await res.json();
         renderTable(data);
-      } catch (err) {
-        document.getElementById("reservation-list").innerHTML =
-          "<tr><td colspan='10'>エラー: " + err + "</td></tr>";
-      } finally { hideModal(); }
+      }catch(err){
+        document.getElementById("reservation-list").innerHTML="<tr><td colspan='10'>エラー:"+err+"</td></tr>";
+      }finally{hideModal();}
     }
 
-    // 🔹イベント
-    document.getElementById("storeFilter").addEventListener("change", loadReservations);
-    document.getElementById("applyDateRange").addEventListener("click", loadReservations);
-
-    document.querySelectorAll(".preset-buttons button").forEach(btn => {
-      btn.addEventListener("click", e => {
-        document.querySelectorAll(".preset-buttons button").forEach(b => b.classList.remove("active"));
+    document.getElementById("storeFilter").addEventListener("change",loadReservations);
+    document.getElementById("applyDateRange").addEventListener("click",loadReservations);
+    document.querySelectorAll(".preset-buttons button").forEach(btn=>{
+      btn.addEventListener("click",e=>{
+        document.querySelectorAll(".preset-buttons button").forEach(b=>b.classList.remove("active"));
         e.target.classList.add("active");
-        currentPreset = e.target.dataset.preset;
-
-        // ✅プリセットを押した時、日付入力に反映
-        const { start, end } = getPickupRangeForPreset(currentPreset);
-        const startInput = document.getElementById("pickupStart");
-        const endInput = document.getElementById("pickupEnd");
-
-        startInput.value = start ? start.toISOString().slice(0,10) : "";
-        endInput.value = end ? end.toISOString().slice(0,10) : "";
-
+        currentPreset=e.target.dataset.preset;
+        // プリセットを押したら日付範囲に自動セット
+        const range=getPickupRangeForPreset(currentPreset);
+        document.getElementById("pickupStart").value=range.start ? range.start.toISOString().slice(0,10) : "";
+        document.getElementById("pickupEnd").value=range.end ? range.end.toISOString().slice(0,10) : "";
         loadReservations();
       });
     });
