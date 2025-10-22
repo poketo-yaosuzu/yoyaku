@@ -2,22 +2,23 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ご予約フォーム</title>
+  <title>🍣 ご予約フォーム</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
+
 <body>
   <main class="card">
     <h2>🍣 ご予約フォーム</h2>
 
     <form id="reservationForm">
-      <label>お名前<input type="text" id="name" required></label>
-      <label>電話番号<input type="tel" id="phone" required></label>
+      <label>お名前<input type="text" id="name" name="name" required></label>
+      <label>電話番号<input type="tel" id="phone" name="phone" required></label>
 
       <label>受取店舗
-        <select id="store" required>
+        <select id="store" name="store" required>
           <option value="">選択してください</option>
           <option value="ポケット店">ポケット店</option>
           <option value="アップティ店">アップティ店</option>
@@ -25,33 +26,23 @@
         </select>
       </label>
 
-      <label>受取日※本日より3日後から受付可能
-        <input type="date" id="pickupDate" required>
-      </label>
-      <label>店休日・繁忙期などで設定が出来ない日があります。</label>
+      <label>受取日※本日より3日後から受付可能<input type="date" id="pickupDate" name="pickupDate" required></label>
+        <label>店休日・繁忙期などで設定が出来ない日があります。</label>
+      <label>受取時間※11時～18時まで30分刻み<select id="pickupTime" name="pickupTime" required></select></label>
 
-      <label>受取時間※11時～18時まで30分刻み
-        <select id="pickupTime" required></select>
-      </label>
-
-      <a href="https://drive.google.com/file/d/1ozipMuv4eflwsTPUNdYStDJpJDweeLva/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
-        商品パンフレットはこちら
-      </a>
-
+      <a href="https://drive.google.com/file/d/1ozipMuv4eflwsTPUNdYStDJpJDweeLva/view?usp=drive_link" target="_blank">商品パンフレットはこちら</a>
       <div id="products"></div>
       <button type="button" id="addProductBtn">＋ 商品を追加</button>
 
       <p>合計金額：<span id="total">0</span>円+税</p>
       <label>お支払いは、受取店舗のレジで現金またはクレジット決済です。</label>
-      <label>備考<textarea id="memo" rows="3" placeholder="ご要望などあれば記入して下さい"></textarea></label>
-
-      <h3>上記の内容に間違いがなければ、送信ボタンを押してください。</h3>
+      <label>備考<textarea id="memo" name="memo" rows="3" placeholder="ご要望などあれば記入して下さい"></textarea></label>
+      
+      <h2>上記の内容に間違いがなければ、送信ボタンを押して下さい。</h2>
       <button type="submit">送信する</button>
-      <footer><p>©️ スーパーヤオスズ</p></footer>
     </form>
   </main>
 
-  <!-- 送信中モーダル -->
   <div id="loadingModal" class="modal">
     <div class="modal-content">
       <div class="line-spinner"></div>
