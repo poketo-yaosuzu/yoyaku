@@ -87,6 +87,16 @@
     }
     updateTodayDate();
 
+    function formatPickupTime(timeStr) {
+  if (!timeStr) return "";
+  const [hour, minute] = timeStr.split(":");
+  // 0埋めして hh時mm分 に変換
+  const hh = Number(hour);
+  const mm = minute.padStart(2,"0");
+  return `${hh}時${mm}分`;
+}
+
+    
     // モーダル制御
     const showModal = () => document.getElementById("loadingModal").style.display = "flex";
     const hideModal = () => document.getElementById("loadingModal").style.display = "none";
@@ -181,7 +191,13 @@
         });
       }
 
+      // 現在：降順（新しい日付が上）
+      //filtered.sort((a,b) => parseJapaneseDate(b.pickupDateFormatted) - parseJapaneseDate(a.pickupDateFormatted));
+      
+      // 修正：昇順（受取日の早い順）
       filtered.sort((a,b) => parseJapaneseDate(a.pickupDateFormatted) - parseJapaneseDate(b.pickupDateFormatted));
+
+
 
       const presetLabelMap = { "tomorrow":"明日", "today":"今日", "week":"今週", "month":"今月", "all":"全期間" };
       const presetLabel = presetLabelMap[currentPreset] || "全期間";
@@ -211,7 +227,7 @@
           <td>${r.phone || ""}</td>
           <td>${r.store || ""}</td>
           <td>${r.pickupDateFormatted || ""}</td>
-          <td>${r.pickupTimeFormatted || ""}</td>
+          <td>${formatPickupTime(r.pickupTime) || ""}</td>
           <td>${(r.products || "").replace(/\n/g,"<br>")}</td>
           <td>${Number(r.total || 0).toLocaleString()}円</td>
           <td>${r.memo || ""}</td>
@@ -263,4 +279,3 @@
   </script>
 </body>
 </html>
-
