@@ -13,10 +13,16 @@ body {
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-h2 { text-align: center; margin-bottom: 16px; }
-h3 { margin-top: 20px; }
+h2 {
+  text-align: center;
+  margin-bottom: 16px;
+}
 
-label { display: block; margin: 10px 0; }
+label {
+  display: block;
+  margin: 10px 0;
+}
+
 input, select, textarea {
   width: 100%;
   padding: 8px;
@@ -38,28 +44,76 @@ button {
   cursor: pointer;
   margin-top: 10px;
 }
-button:hover { opacity: 0.9; }
 
-.product-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
-.product-row select { flex: 1; }
-.product-row input[type=number] { width: 3em; text-align: center; }
+button:hover {
+  opacity: 0.9;
+}
+
+.product-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.product-row select {
+  flex: 1;
+}
+
+.product-row input[type=number] {
+  width: 3em; /* 👈 2桁が見えるサイズ */
+  text-align: center;
+}
+
 .product-row button {
-  width: auto; background: red; color: white; border-radius: 6px; padding: 4px 8px; font-size: 14px;
+  width: auto;
+  background: red;
+  color: white;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 14px;
 }
 
-footer { text-align: center; padding: 8px 0; }
+footer {
+  text-align: center;
+  padding: 1px;
+}
 
-/* モーダル */
+/* === モーダル背景 === */
 .modal {
-  display: none;
-  position: fixed; top:0; left:0; width:100%; height:100%;
-  background: rgba(255,255,255,0.9);
-  justify-content: center; align-items: center; z-index: 9999;
+  display: none; /* 最初は非表示 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
+
+/* === モーダル中身 === */
 .modal-content {
-  text-align: center; padding: 30px 40px; background:#fff; border-radius:12px; box-shadow:0 0 10px rgba(0,0,0,0.15);
+  text-align: center;
+  padding: 30px 40px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.15);
 }
+
+/* === スピナーアニメーション === */
 .line-spinner {
-  width: 50px; height:50px; border:5px solid #ccc; border-top:5px solid #4CAF50; border-radius:50%; animation: spin 1s linear infinite; margin:0 auto 15px auto;
+  width: 50px;
+  height: 50px;
+  border: 5px solid #ccc;
+  border-top: 5px solid #4CAF50; /* 緑色でLINE風に */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 15px auto;
 }
-@keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
