@@ -107,7 +107,7 @@
     // GAS から LIFF ID を取得
     async function loadLiffId() {
       try {
-        const res = await fetch("https://script.google.com/macros/s/xxxxx/exec?action=getLiffId");
+        const res = await fetch("https://script.google.com/macros/s/AKfycbydiE4I-Q6t58xEbnbxEvlJMeHsqKooDvGu0AXxIlq9Iuz5uVn5gWqpc7aqrOGwTixuwg/exec?action=getLiffId");
         const data = await res.json();
         liffId = data.liffId || "";
         console.log("取得したLIFF ID:", liffId);
@@ -140,3 +140,4 @@
   </script>
 </body>
 </html>
+
